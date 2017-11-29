@@ -1,0 +1,7 @@
+* ilość wolnych miejsc na daną konferencję/warsztat
+* aktualna cena (na podstawie progów) konferencji
+* lista aktywności klientów (na podstawie ilości uczestników?)
+* lista klientów, których trzeba dopytać o dane uczestników
+* raport: wyciąganie uczestników konferencji/warsztatów w dany dzień
+    wraz z informacjami o płatnościach
+

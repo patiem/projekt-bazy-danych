@@ -1,1 +1,4 @@
-some questions
+* Raport na dany dzień ma zawierać informacje o płatnościach. Czy to
+    ma być cena jaką zapłacił klient (bo zapłacić musiał - w przeciwnym 
+    wypadku rezerwacja by była anulowana wcześniej)?
+

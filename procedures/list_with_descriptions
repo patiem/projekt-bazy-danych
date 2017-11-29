@@ -1,0 +1,7 @@
+* zbiorczy INSERT dla klientów korporacyjnych (np. 20 osób na konferencję
+    x bez podawania szczegółowych danych)
+* rejestracja uczestnika (w obrębie funkcji sprawdzanie czy taki klient
+    i uczestnik istnieje)
+* anulowanie rezerwacji, które przekroczyły ostateczny czas na zapłacenie
+    (fajnie by było to zrobić w jobie, który odpala się raz dziennie)
+

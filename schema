@@ -1,0 +1,64 @@
+class Clients:
+    ClientName (PK)
+    IsCompany
+    
+
+class Companies:
+    ClientName = FK(Klient)(PK)
+    CompanyName
+    NumberOfParticipants
+    Email
+
+class Uczestnik:
+    ClientName = FK(Klient)(PK)
+    FirstName
+    LastName
+    Email
+    Company
+    StudentID
+
+class Conferences:
+    ID (PK)
+    ConferenceName
+    ilosc_miejsc
+    Start_date
+    End_date
+
+Class Dni_konferencji:
+   ID (PK)
+   ...
+
+class Workshop:
+    ID (PK)
+    ConferenceID = FK(Conferences)
+    ilosc_miejsc
+    start_date
+    end_date
+    price
+
+class RejestracjaNaKonferencję: // lub dzień konferencji
+    konferencja = FK(Konferencja)
+    uczestnik = FK(Uczestnik)
+    czyZapłacono
+    start_date (dla konferencji jednodniowej start_date == end_date) //Czy to już nie jest?
+    end_date //Czy to już nie jest?
+// w przypadku gdy uczestnik rejestruje się np tylko na jeden dzień 3-dniowej konferencji
+// end_date rejestracji będzie inne niż end_date konferencji(A jeżeli zarejestruje się na 1 i 3?)
+
+
+Class RejestracjaNaWarsztat:
+    warsztat = FK(Warsztat)
+    uczestnik = FK(Uczestnik)
+    czyZapłacono
+
+
+Class ProgCenowyNaKonferencje:
+    konferencja = FK(Konferencja)
+    start_date (data, od której ta cena jest aplikowana)
+    cena
+    Student_discount
+
+Class Lecturer
+    ID (PK)
+    Name
+

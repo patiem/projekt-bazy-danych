@@ -1,0 +1,26 @@
+Administrator:
+	Utworzenie konferencji
+	Usunięcie użytkownika
+
+Użytkownik:
+	Utworzenie konta
+	Zarezerwuj wejściówki na dzień konferencji
+	Zarezerwuj wejściówki na warsztat
+	Zakup wejściówki na dzień konferencji
+	Zakup wejściówki na warsztat
+	Sprawdzenie planu godzin
+
+Firma:
+	Utworzenie konta
+	Wprowadzenie pracowników
+
+Gospodarz konferencji:
+	Wprowadzenie warsztatów i wykładów
+	Wprowadzenie cen i zniżek
+
+Wykładowca:
+	Sprawdzenie planu godzin
+
+Prowadzący warsztaty:
+	Sprawdzenie planu godzin
+
