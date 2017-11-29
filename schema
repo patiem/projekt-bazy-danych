@@ -1,17 +1,17 @@
-class Clients:
+Clients:
     ClientID
     ClientName (PK)
     IsCompany
     
 
-class Companies:
+Companies:
     ClientName = FK(Klient)(PK)
     CompanyName
     NumberOfParticipants
     Email
 
 
-class Participants:
+Participants:
     ParticipantID
     ClientID = FK(Clients)(PK)
     FirstName
@@ -21,7 +21,7 @@ class Participants:
     StudentID
 
 
-class Conferences:
+Conferences:
     ConferenceID (PK)
     ConferenceName
     NumberOfSeats
@@ -29,12 +29,12 @@ class Conferences:
     EndDate
 
 
-Class Dni_konferencji:
-   ID (PK)
-   ...
+//Dni_konferencji:
+//   ID (PK)
+//   ...
 
 
-class Workshops:
+Workshops:
     WorkshopID (PK)
     ConferenceID = FK(Conferences)
     NumberOfSeats
@@ -43,28 +43,38 @@ class Workshops:
     Price
 
 
-class RegistrationsForConferences:
-    conference = FK(Conferences)
-    uczestnik = FK(Uczestnik)
-    paid_at
+// jeśli rejestracja jest np na dzień 11/12/17, 12/12/17, 13/12/17 i 15/12/17
+// to robimy dla tej rejestarcji 2 obiekty RegistrationDateRange:
+// 1) StartDate = 11/12/17, EndDate = 13/12/17
+// 2) StartDate = 15/12/17, EndDate = 15/12/17
+RegistrationDateRanges:
+    RegistrationForConferenceID = FK(RegistrationsForConferences)
     StartDate
-    EndDate (dla konferencji jednodniowej start_date == end_date)
+    EndDate
 
 
-Class RegistrationsForWorkshops:
+RegistrationsForConferences:
+    RegistrationForConferenceID
+    ConferenceID = FK(Conferences)
+    ParticipantID = FK(Participants)
+    PaidAt
+    // daty na podstawie RegistrationDateRanges
+
+
+RegistrationsForWorkshops:
     WorkshopID = FK(Workshops)
     ParticipantID = FK(Participants)
     PaidAt
 
 
-Class ConferencePriceThresholds:
+ConferencePriceThresholds:
     ConferenceID = FK(Conferences)
-    StartDate (data, od której ta cena jest aplikowana)
+    StartDate   // data, od której ta cena jest aplikowana
     Price
     StudentDiscount
 
 
-Class Lecturers
+Lecturers:
     LecturerID (PK)
     Name
 

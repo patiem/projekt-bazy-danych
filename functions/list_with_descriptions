@@ -8,3 +8,5 @@
 
 * raport: wyciąganie uczestników konferencji/warsztatów w dany dzień
     wraz z informacjami o płatnościach
+
+* czy uczestnik jest zarejestrowany na konkretny dzień konferencji (is_participant_registered_for_conference_day)
