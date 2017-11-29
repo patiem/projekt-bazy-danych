@@ -57,14 +57,14 @@ Class RegistrationsForWorkshops:
     PaidAt
 
 
-Class ConferencePriceThreshold:
+Class ConferencePriceThresholds:
     ConferenceID = FK(Conferences)
     StartDate (data, od której ta cena jest aplikowana)
     Price
     StudentDiscount
 
 
-Class Lecturer
+Class Lecturers
     LecturerID (PK)
     Name
 

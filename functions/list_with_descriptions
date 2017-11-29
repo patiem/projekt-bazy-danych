@@ -1,6 +1,6 @@
-* ilość wolnych miejsc na daną konferencję/warsztat
+* ilość wolnych miejsc na daną konferencję/warsztat (seats_left_for_workshop, ...)
 
-* aktualna cena (na podstawie progów) konferencji
+* aktualna cena (na podstawie progów) konferencji (current_conference_price)
 
 * lista aktywności klientów (na podstawie ilości uczestników?)
 
