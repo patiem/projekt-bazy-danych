@@ -1,4 +1,4 @@
-* ilość wolnych miejsc na daną konferencję/warsztat (seats_left_for_workshop, ...)
+* ilość wolnych miejsc na daną konferencję/warsztat (seats_left_for_workshop, seats_left_for_conference)
 
 * aktualna cena (na podstawie progów) konferencji (current_conference_price)
 
@@ -10,3 +10,7 @@
     wraz z informacjami o płatnościach
 
 * czy uczestnik jest zarejestrowany na konkretny dzień konferencji (is_participant_registered_for_conference_day)
+
+* czy uczestnik jest zarejestrowany na jakiś warsztat w danym czasie (is_participant_registered_for_some_workshop_at)
+    Będzie używane w celu sprawdzenia czy może się zapisać na jakiś warsztat w tym czasie, gdyż warsztaty nie mogą
+    na siebie nachodzić.
