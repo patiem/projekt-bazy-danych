@@ -1,4 +1,5 @@
 class Clients:
+    ClientID
     ClientName (PK)
     IsCompany
     
@@ -10,8 +11,9 @@ class Companies:
     Email
 
 
-class Uczestnik:
-    ClientName = FK(Klient)(PK)
+class Participants:
+    ParticipantID
+    ClientID = FK(Clients)(PK)
     FirstName
     LastName
     Email
@@ -20,11 +22,11 @@ class Uczestnik:
 
 
 class Conferences:
-    ID (PK)
+    ConferenceID (PK)
     ConferenceName
-    number_of_seats
-    Start_date
-    End_date
+    NumberOfSeats
+    StartDate
+    EndDate
 
 
 Class Dni_konferencji:
@@ -32,37 +34,37 @@ Class Dni_konferencji:
    ...
 
 
-class Workshop:
-    ID (PK)
+class Workshops:
+    WorkshopID (PK)
     ConferenceID = FK(Conferences)
-    number_of_seats
-    start_date
-    end_date
-    price
+    NumberOfSeats
+    StartDate
+    EndDate
+    Price
 
 
-class RejestracjaNaKonferencję: // lub dzień konferencji
-    konferencja = FK(Konferencja)
+class RegistrationsForConferences:
+    conference = FK(Conferences)
     uczestnik = FK(Uczestnik)
     paid_at
-    start_date (dla konferencji jednodniowej start_date == end_date)
-    end_date
+    StartDate
+    EndDate (dla konferencji jednodniowej start_date == end_date)
 
 
-Class RejestracjaNaWarsztat:
-    warsztat = FK(Warsztat)
-    uczestnik = FK(Uczestnik)
-    paid_at
+Class RegistrationsForWorkshops:
+    WorkshopID = FK(Workshops)
+    ParticipantID = FK(Participants)
+    PaidAt
 
 
-Class ProgCenowyNaKonferencje:
-    konferencja = FK(Konferencja)
-    start_date (data, od której ta cena jest aplikowana)
-    price
-    Student_discount
+Class ConferencePriceThreshold:
+    ConferenceID = FK(Conferences)
+    StartDate (data, od której ta cena jest aplikowana)
+    Price
+    StudentDiscount
 
 
 Class Lecturer
-    ID (PK)
+    LecturerID (PK)
     Name
 
