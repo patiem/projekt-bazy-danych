@@ -1,5 +1,5 @@
 CREATE PROCEDURE OurDataBase.payForConferenceDay
- BEGIN
+  BEGIN
 
- END
+  END
 

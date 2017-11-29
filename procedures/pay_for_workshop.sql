@@ -1,5 +1,5 @@
 CREATE PROCEDURE OurDataBase.payForWorkshop
- BEGIN
-  
- END
+  BEGIN
+
+  END
 
