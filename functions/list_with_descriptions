@@ -1,16 +1,20 @@
-* ilość wolnych miejsc na daną konferencję/warsztat (seats_left_for_workshop, seats_left_for_conference)
+* [X] ilość wolnych miejsc na daną konferencję/warsztat (seats_left_for_workshop, seats_left_for_conference)
 
-* aktualna cena (na podstawie progów) konferencji (current_conference_price)
+* [X] aktualna cena (na podstawie progów) konferencji (current_conference_price)
 
-* lista aktywności klientów (na podstawie ilości uczestników?)
+* [X] czy uczestnik jest zarejestrowany na konkretny dzień konferencji (is_participant_registered_for_conference_day)
 
-* lista klientów, których trzeba dopytać o dane uczestników
-
-* raport: wyciąganie uczestników konferencji/warsztatów w dany dzień
-    wraz z informacjami o płatnościach
-
-* czy uczestnik jest zarejestrowany na konkretny dzień konferencji (is_participant_registered_for_conference_day)
-
-* czy uczestnik jest zarejestrowany na jakiś warsztat w danym czasie (is_participant_registered_for_some_workshop_at)
+* [X] czy uczestnik jest zarejestrowany na jakiś warsztat w danym czasie (is_participant_registered_for_some_workshop_at)
     Będzie używane w celu sprawdzenia czy może się zapisać na jakiś warsztat w tym czasie, gdyż warsztaty nie mogą
     na siebie nachodzić.
+
+
+
+Do zaimplementowania na końcu (funkcje które jedynie wyciągają dane, a nie wspomagają proces tworzenia danych):
+
+* [ ] lista aktywności klientów (na podstawie ilości uczestników?)
+
+* [ ] lista klientów, których trzeba dopytać o dane uczestników
+
+* [ ] raport: wyciąganie uczestników konferencji/warsztatów w dany dzień
+    wraz z informacjami o płatnościach
