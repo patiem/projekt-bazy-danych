@@ -1,14 +1,8 @@
 Clients:
     ClientID
     ClientName (PK)
-    IsCompany
-    
-
-Companies:
-    ClientName = FK(Klient)(PK)
-    CompanyName
-    NumberOfParticipants
     Email
+    IsCompany
 
 
 Participants:
@@ -17,7 +11,6 @@ Participants:
     FirstName
     LastName
     Email
-    Company
     StudentID
 
 
@@ -38,8 +31,8 @@ Workshops:
     WorkshopID (PK)
     ConferenceID = FK(Conferences)
     NumberOfSeats
-    StartDate
-    EndDate
+    StartDateTime
+    EndDateTime
     Price
 
 

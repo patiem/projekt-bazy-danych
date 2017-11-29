@@ -1,9 +1,10 @@
-* <crud method> <model name>: <description>
+FORMAT: * <crud method> <model name>: <description>
 
-* UPDATE / INSERT RejestracjaNaWarsztat: czy nie ma już rezerwacji
+* [ ] UPDATE / INSERT RegistrationsForWorkshops: czy nie ma już rezerwacji
     na warsztat o kolidującej godzinie, czy osoba jest zapisana w tym 
     dniu na konferencję?
-* UPDATE / INSERT RejestracjaNaWarsztat & RejestracjaNaKonferencję: czy 
+
+* [ ] UPDATE / INSERT RegistrationsForConferences & RegistrationsForWorkshops: czy
     ta osoba już nie jest zapisana, czy maksymalna ilość osób nie jest
     przekroczona?
 
