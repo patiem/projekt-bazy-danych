@@ -3,4 +3,4 @@ RegistrationForWorkshop podpiąc pod RegistrationForConference zamiast pod Parti
 Możemy wtedy usunąć połączenie RegistrationForWorkshop do Participanta.
 
 Efekt: łatwiejsze np. sprawdzanie czy rezerwacja na Conference jest (check który trzeba zrobić przy
-zapisie na Workshop), a ilość pól danych jest taka sama.
+zapisie na Workshop), a ilość pól danych w tabelach jest taka sama.
