@@ -89,7 +89,7 @@ GO
 CREATE TABLE [Lecturers] (
 	LecturerID integer NOT NULL UNIQUE IDENTITY(1,1),
 	FirstName varchar(255) NOT NULL,
-	LastName date NOT NULL,
+	LastName varchar(255) NOT NULL,
   CONSTRAINT [PK_LECTURERS] PRIMARY KEY CLUSTERED
   (
   [LecturerID] ASC
