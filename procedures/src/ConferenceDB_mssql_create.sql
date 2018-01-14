@@ -27,13 +27,13 @@ GO
 CREATE TABLE [Participants] (
 	ParticipantID integer NOT NULL UNIQUE IDENTITY(1,1),
 	ClientID integer NOT NULL,
-	FirstName varchar(255) NOT NULL,
-	LastName varchar(255) NOT NULL,
-	Email varchar(255) NOT NULL,
-	StudentID varchar(255) NOT NULL,
+	FirstName varchar(255),
+	LastName varchar(255),
+	Email varchar(255) UNIQUE,
+	StudentID varchar(255),
   CONSTRAINT [PK_PARTICIPANTS] PRIMARY KEY CLUSTERED
   (
-  [ClientID] ASC
+  [ParticipantID] ASC
   ) WITH (IGNORE_DUP_KEY = OFF)
 
 )
@@ -66,7 +66,7 @@ CREATE TABLE [RegistrationsForConferences] (
 	RegistrationForConferenceID integer NOT NULL UNIQUE IDENTITY(1,1),
 	ConferenceID integer NOT NULL,
 	ParticipantID integer NOT NULL,
-	PaidAt date NOT NULL,
+	PaidAt date,
   CONSTRAINT [PK_REGISTRATIONSFORCONFERENCES] PRIMARY KEY CLUSTERED
   (
   [RegistrationForConferenceID] ASC
@@ -78,7 +78,7 @@ CREATE TABLE [RegistrationsForWorkshops] (
 	RegistrationForWorkshopID integer NOT NULL UNIQUE IDENTITY(1,1),
 	WorkshopID integer NOT NULL,
 	ParticipantID integer NOT NULL,
-	PaidAt date NOT NULL,
+	PaidAt date,
   CONSTRAINT [PK_REGISTRATIONSFORWORKSHOPS] PRIMARY KEY CLUSTERED
   (
   [RegistrationForWorkshopID] ASC
