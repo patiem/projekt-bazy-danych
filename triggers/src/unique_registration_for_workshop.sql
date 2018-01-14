@@ -3,9 +3,9 @@ FOR INSERT, UPDATE
 AS
   BEGIN
     IF EXISTS(
-      SELECT 1
+      SELECT *
       FROM RegistrationsForWorkshops
-      LEFT JOIN inserted
+      INNER JOIN inserted
           ON inserted.WorkshopID = RegistrationsForWorkshops.WorkshopID AND
              inserted.ParticipantID = RegistrationsForWorkshops.ParticipantID
     )

@@ -1,0 +1,40 @@
+
+dbo.create_account_company 'GoodCompany', 'contact@goodcompany.com'
+dbo.create_account_company 'Empik', 'contact@empik.com'
+dbo.create_account_company 'AVSystem', 'contact@avsystem.com'
+dbo.create_account_company 'Comarch', 'contact@comarch.com'
+
+dbo.register_participant 1, 'John', 'May', 'john.may@gmail.com', null
+dbo.register_participant 1, 'Ann', 'March', 'ann.march@gmail.com', null
+dbo.register_participant 2, 'Wit', 'Sobolev', 'wit55@gmail.com', 290087
+dbo.register_participant 3, 'Sean', 'Connor', 'connor.sean@gmail.com', null
+
+
+dbo.create_account_participant 'mike1234', 'Mike', 'Moon', 'mike.moon@gmail.com', 293637
+dbo.create_account_participant 'robert77', 'Robert', 'Johnson', 'rob77@gmail.com', null
+dbo.create_account_participant 'food12', 'Food', 'Shovel', 'food.shovel@gmail.com', 293601
+
+
+dbo.create_lecturer 'Wan', 'Wong'
+dbo.create_lecturer 'Ping', 'Pong'
+dbo.create_lecturer 'Mark', 'Stilitz'
+
+dbo.create_conference 'Lambda Days', 300, '2018-01-02', '2018-01-05'
+
+dbo.create_workshop 1, 30, '2018-01-02', '2018-01-02', 1
+dbo.create_workshop 1, 10, '2018-01-03', '2018-01-03', 2
+dbo.create_workshop 1, 50, '2018-01-04', '2018-01-04', 1
+
+dbo.book_conference_day 1, 1, null
+dbo.book_conference_day 1, 2, null
+dbo.book_conference_day 1, 3, null
+dbo.book_conference_day 1, 4, null
+
+dbo.book_workshop 1, 1, null
+dbo.book_workshop 1, 2, null
+dbo.book_workshop 1, 3, null
+
+
+
+
+
