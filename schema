@@ -22,11 +22,6 @@ Conferences:
     EndDate
 
 
-//Dni_konferencji:
-//   ID (PK)
-//   ...
-
-
 Workshops:
     WorkshopID (PK)
     ConferenceID = FK(Conferences)

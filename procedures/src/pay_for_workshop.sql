@@ -1,7 +1,7 @@
 CREATE PROCEDURE OurDataBase.payForWorkshop
-    @WorkshopID INTEGER, @ParticipantID INTEGER, @PaidAt DATE
+    @WorkshopID INTEGER, @PaidAt DATE = GETDATE()
 AS
   BEGIN
-    UPDATE RegistrationsForWorkshops SET PaidAt = @PaidAt WHERE ParticipantID = @ParticipantID AND WorkshopID = @WorkshopID
+    UPDATE RegistrationsForWorkshops SET PaidAt = @PaidAt WHERE WorkshopID = @WorkshopID
   END
 
