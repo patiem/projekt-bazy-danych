@@ -1,4 +1,4 @@
-CREATE PROCEDURE dbo.register_for_conference_day
+CREATE PROCEDURE dbo.register_for_conference
 	@ConferenceID INTEGER, @ParticipantID INTEGER, @StartDate DATE, @EndDate Date
 AS
   BEGIN
