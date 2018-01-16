@@ -1,7 +1,7 @@
-CREATE PROCEDURE dbo.pay_for_conference_day
-    @ConferenceID INTEGER, @ParticipantID INTEGER, @PaidAt DATE
+CREATE PROCEDURE dbo.pay_for_conference_registration
+    @RegistrationForConferenceID INTEGER, @PaidAt DATE = GETDATE()
 AS
   BEGIN
-    UPDATE RegistrationsForConferences SET PaidAt = @PaidAt WHERE ParticipantID = @ParticipantID AND ConferenceID = @ConferenceID
+    UPDATE RegistrationsForConferences SET PaidAt = @PaidAt WHERE RegistrationForConferenceID = @RegistrationForConferenceID
   END
 

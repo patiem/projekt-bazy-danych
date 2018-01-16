@@ -1,112 +1,67 @@
 CREATE TABLE [Workshops] (
-	WorkshopID integer NOT NULL UNIQUE IDENTITY(1,1),
+	WorkshopID integer NOT NULL UNIQUE IDENTITY(1,1) PRIMARY KEY,
 	ConferenceID integer NOT NULL,
 	NumberOfSeats integer NOT NULL,
 	StartDateTime date NOT NULL,
 	EndDateTime date NOT NULL,
 	LecturerID integer NOT NULL,
-  CONSTRAINT [PK_WORKSHOPS] PRIMARY KEY CLUSTERED
-  (
-  [WorkshopID] ASC
-  ) WITH (IGNORE_DUP_KEY = OFF)
-
 )
 GO
 CREATE TABLE [Clients] (
-	ClientID integer NOT NULL UNIQUE IDENTITY(1,1),
+	ClientID integer NOT NULL UNIQUE IDENTITY(1,1) PRIMARY KEY,
 	ClientName varchar(255) NOT NULL UNIQUE,
 	Email varchar(255) NOT NULL UNIQUE,
 	IsCompany binary NOT NULL,
-  CONSTRAINT [PK_CLIENTS] PRIMARY KEY CLUSTERED
-  (
-  [ClientID] ASC
-  ) WITH (IGNORE_DUP_KEY = OFF)
-
 )
 GO
 CREATE TABLE [Participants] (
-	ParticipantID integer NOT NULL UNIQUE IDENTITY(1,1),
+	ParticipantID integer NOT NULL UNIQUE IDENTITY(1,1) PRIMARY KEY,
 	ClientID integer NOT NULL,
 	FirstName varchar(255),
 	LastName varchar(255),
 	Email varchar(255) UNIQUE,
 	StudentID varchar(255),
-  CONSTRAINT [PK_PARTICIPANTS] PRIMARY KEY CLUSTERED
-  (
-  [ParticipantID] ASC
-  ) WITH (IGNORE_DUP_KEY = OFF)
-
 )
 GO
 CREATE TABLE [Conferences] (
-	ConferenceID integer NOT NULL UNIQUE IDENTITY(1,1),
+	ConferenceID integer NOT NULL UNIQUE IDENTITY(1,1) PRIMARY KEY,
 	ConferenceName varchar(255) NOT NULL UNIQUE,
 	NumberOfSeats integer NOT NULL,
 	StartDate date NOT NULL,
 	EndDate date NOT NULL,
-  CONSTRAINT [PK_CONFERENCES] PRIMARY KEY CLUSTERED
-  (
-  [ConferenceID] ASC
-  ) WITH (IGNORE_DUP_KEY = OFF)
-
 )
 GO
 CREATE TABLE [RegistrationDateRanges] (
-	RegistrationForConferenceID integer NOT NULL UNIQUE IDENTITY(1,1),
+	RegistrationForConferenceID integer NOT NULL UNIQUE IDENTITY(1,1) PRIMARY KEY,
 	StartDate date NOT NULL,
 	EndDate date NOT NULL,
-  CONSTRAINT [PK_REGISTRATIONDATERANGES] PRIMARY KEY CLUSTERED
-  (
-  [RegistrationForConferenceID] ASC
-  ) WITH (IGNORE_DUP_KEY = OFF)
-
 )
 GO
 CREATE TABLE [RegistrationsForConferences] (
-	RegistrationForConferenceID integer NOT NULL UNIQUE IDENTITY(1,1),
+	RegistrationForConferenceID integer NOT NULL UNIQUE IDENTITY(1,1) PRIMARY KEY,
 	ConferenceID integer NOT NULL,
 	ParticipantID integer NOT NULL,
 	PaidAt date,
-  CONSTRAINT [PK_REGISTRATIONSFORCONFERENCES] PRIMARY KEY CLUSTERED
-  (
-  [RegistrationForConferenceID] ASC
-  ) WITH (IGNORE_DUP_KEY = OFF)
-
 )
 GO
 CREATE TABLE [RegistrationsForWorkshops] (
-	RegistrationForWorkshopID integer NOT NULL UNIQUE IDENTITY(1,1),
+	RegistrationForWorkshopID integer NOT NULL UNIQUE IDENTITY(1,1) PRIMARY KEY,
 	WorkshopID integer NOT NULL,
 	ParticipantID integer NOT NULL,
 	PaidAt date,
-  CONSTRAINT [PK_REGISTRATIONSFORWORKSHOPS] PRIMARY KEY CLUSTERED
-  (
-  [RegistrationForWorkshopID] ASC
-  ) WITH (IGNORE_DUP_KEY = OFF)
-
 )
 GO
 CREATE TABLE [Lecturers] (
-	LecturerID integer NOT NULL UNIQUE IDENTITY(1,1),
+	LecturerID integer NOT NULL UNIQUE IDENTITY(1,1) PRIMARY KEY,
 	FirstName varchar(255) NOT NULL,
 	LastName varchar(255) NOT NULL,
-  CONSTRAINT [PK_LECTURERS] PRIMARY KEY CLUSTERED
-  (
-  [LecturerID] ASC
-  ) WITH (IGNORE_DUP_KEY = OFF)
-
 )
 GO
 CREATE TABLE [ConferencePriceThresholds] (
-	ConferenceID integer NOT NULL UNIQUE IDENTITY(1,1),
+	ConferenceID integer NOT NULL UNIQUE IDENTITY(1,1) PRIMARY KEY,
 	StartDate date NOT NULL,
 	Price integer NOT NULL,
 	Discount float NOT NULL,
-  CONSTRAINT [PK_CONFERENCEPRICETHRESHOLDS] PRIMARY KEY CLUSTERED
-  (
-  [ConferenceID] ASC
-  ) WITH (IGNORE_DUP_KEY = OFF)
-
 )
 GO
 ALTER TABLE [Workshops] WITH CHECK ADD CONSTRAINT [Workshops_fk0] FOREIGN KEY ([ConferenceID]) REFERENCES [Conferences]([ConferenceID])

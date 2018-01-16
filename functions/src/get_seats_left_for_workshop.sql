@@ -1,4 +1,4 @@
-CREATE FUNCTION seats_left_for_workshop (@WorkshopID INT)
+CREATE FUNCTION get_seats_left_for_workshop (@WorkshopID INT)
   RETURNS INT
 AS
   BEGIN

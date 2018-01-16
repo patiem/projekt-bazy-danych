@@ -22,11 +22,6 @@ Conferences:
     EndDate
 
 
-//Dni_konferencji:
-//   ID (PK)
-//   ...
-
-
 Workshops:
     WorkshopID (PK)
     ConferenceID = FK(Conferences)
@@ -65,9 +60,3 @@ ConferencePriceThresholds:
     StartDate   // data, od której ta cena jest aplikowana
     Price
     StudentDiscount
-
-
-Lecturers:
-    LecturerID (PK)
-    Name
-
