@@ -1,6 +1,6 @@
 CREATE PROCEDURE dbo.create_workshop_for_conference
-  @ConferenceID INTEGER, @NumberOFSeats INTEGER , @StartDateTime DATE , @EndDateTime DATE, @Price FLOAT
+  @WorkshopName VARCHAR(255), @ConferenceID INTEGER, @NumberOFSeats INTEGER, @StartDateTime DATE, @EndDateTime DATE, @Price FLOAT
 AS
   BEGIN
-    INSERT INTO Workshops VALUES (@ConferenceID, @NumberOfSeats, @StartDateTime, @EndDateTime, @Price)
+    INSERT INTO Workshops VALUES (@WorkshopName, @ConferenceID, @NumberOfSeats, @StartDateTime, @EndDateTime, @Price)
   END 

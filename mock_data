@@ -21,9 +21,9 @@ dbo.create_lecturer 'Mark', 'Stilitz'
 
 dbo.create_conference 'Lambda Days', 300, '2018-01-02', '2018-01-05'
 
-dbo.create_workshop 1, 30, '2018-01-02', '2018-01-02', 1
-dbo.create_workshop 1, 10, '2018-01-03', '2018-01-03', 2
-dbo.create_workshop 1, 50, '2018-01-04', '2018-01-04', 1
+dbo.create_workshop 'Haskell for everyone', 1, 30, '2018-01-02', '2018-01-02', 1
+dbo.create_workshop 'Lambda', 1, 10, '2018-01-03', '2018-01-03', 2
+dbo.create_workshop 'Haskell vs Scala', 1, 50, '2018-01-04', '2018-01-04', 1
 
 dbo.book_conference_day 1, 1, null
 dbo.book_conference_day 1, 2, null

@@ -24,6 +24,7 @@ Conferences:
 
 Workshops:
     WorkshopID (PK)
+    WorkshopName
     ConferenceID = FK(Conferences)
     NumberOfSeats
     StartDateTime

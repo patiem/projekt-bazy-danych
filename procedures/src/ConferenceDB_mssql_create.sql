@@ -1,5 +1,6 @@
 CREATE TABLE [Workshops] (
-	WorkshopID integer NOT NULL UNIQUE IDENTITY(1,1) PRIMARY KEY,
+	WorkshopID integer NOT NULL IDENTITY(1,1) PRIMARY KEY,
+	WorkshopName varchar(255) NOT NULL UNIQUE,
 	ConferenceID integer NOT NULL,
 	NumberOfSeats integer NOT NULL,
 	StartDateTime date NOT NULL,
@@ -8,14 +9,14 @@ CREATE TABLE [Workshops] (
 )
 GO
 CREATE TABLE [Clients] (
-	ClientID integer NOT NULL UNIQUE IDENTITY(1,1) PRIMARY KEY,
+	ClientID integer NOT NULL IDENTITY(1,1) PRIMARY KEY,
 	ClientName varchar(255) NOT NULL UNIQUE,
 	Email varchar(255) NOT NULL UNIQUE,
 	IsCompany binary NOT NULL,
 )
 GO
 CREATE TABLE [Participants] (
-	ParticipantID integer NOT NULL UNIQUE IDENTITY(1,1) PRIMARY KEY,
+	ParticipantID integer NOT NULL IDENTITY(1,1) PRIMARY KEY,
 	ClientID integer NOT NULL,
 	FirstName varchar(255),
 	LastName varchar(255),
@@ -24,7 +25,7 @@ CREATE TABLE [Participants] (
 )
 GO
 CREATE TABLE [Conferences] (
-	ConferenceID integer NOT NULL UNIQUE IDENTITY(1,1) PRIMARY KEY,
+	ConferenceID integer NOT NULL IDENTITY(1,1) PRIMARY KEY,
 	ConferenceName varchar(255) NOT NULL UNIQUE,
 	NumberOfSeats integer NOT NULL,
 	StartDate date NOT NULL,
@@ -32,33 +33,33 @@ CREATE TABLE [Conferences] (
 )
 GO
 CREATE TABLE [RegistrationDateRanges] (
-	RegistrationForConferenceID integer NOT NULL UNIQUE IDENTITY(1,1) PRIMARY KEY,
+	RegistrationForConferenceID integer NOT NULL IDENTITY(1,1) PRIMARY KEY,
 	StartDate date NOT NULL,
 	EndDate date NOT NULL,
 )
 GO
 CREATE TABLE [RegistrationsForConferences] (
-	RegistrationForConferenceID integer NOT NULL UNIQUE IDENTITY(1,1) PRIMARY KEY,
+	RegistrationForConferenceID integer NOT NULL IDENTITY(1,1) PRIMARY KEY,
 	ConferenceID integer NOT NULL,
 	ParticipantID integer NOT NULL,
 	PaidAt date,
 )
 GO
 CREATE TABLE [RegistrationsForWorkshops] (
-	RegistrationForWorkshopID integer NOT NULL UNIQUE IDENTITY(1,1) PRIMARY KEY,
+	RegistrationForWorkshopID integer NOT NULL IDENTITY(1,1) PRIMARY KEY,
 	WorkshopID integer NOT NULL,
 	ParticipantID integer NOT NULL,
 	PaidAt date,
 )
 GO
 CREATE TABLE [Lecturers] (
-	LecturerID integer NOT NULL UNIQUE IDENTITY(1,1) PRIMARY KEY,
+	LecturerID integer NOT NULL IDENTITY(1,1) PRIMARY KEY,
 	FirstName varchar(255) NOT NULL,
 	LastName varchar(255) NOT NULL,
 )
 GO
 CREATE TABLE [ConferencePriceThresholds] (
-	ConferenceID integer NOT NULL UNIQUE IDENTITY(1,1) PRIMARY KEY,
+	ConferenceID integer NOT NULL IDENTITY(1,1) PRIMARY KEY,
 	StartDate date NOT NULL,
 	Price integer NOT NULL,
 	Discount float NOT NULL,
