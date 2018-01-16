@@ -1,4 +1,4 @@
-CREATE FUNCTION seats_left_for_conference_at_date (@ConferenceID INT, @Date DATE)
+CREATE FUNCTION get_seats_left_for_conference_at_date (@ConferenceID INT, @Date DATE)
   RETURNS INT
 AS
   BEGIN
