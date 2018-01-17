@@ -3,8 +3,8 @@ from datetime import timedelta, datetime
 
 
 class DataGenerator(object):
-    _DATE_FORMAT = '%Y-%M-%d'
-    _DATETIME_FORMAT = '%Y-%M-%d %H:00'
+    _DATE_FORMAT = '%Y-%m-%d'
+    _DATETIME_FORMAT = '%Y-%m-%d %H:00'
 
     CONFS_PER_MONTH = (2, 3)
     CONF_LENGTH = (1, 4)
@@ -59,7 +59,7 @@ class DataGenerator(object):
         @classmethod
         def get_email(cls):
             i = randint(0, len(cls.last_names) - 1)
-            return cls.last_names[i] + i + '@example.com'
+            return cls.last_names[i].lower() + str(i) + '@example.com'
 
         @classmethod
         def get_student_id(cls):
@@ -125,45 +125,69 @@ class DataGenerator(object):
             }
             return cls.formats[i % len(cls.formats)] % ctx
 
-    def _generate_conf(self, start_date, end_date):
+    @staticmethod
+    def _list_args(args):
+        str_args = map(lambda x: str(x), args)
+        return ", ".join(str_args)
+
+    @staticmethod
+    def _generate_conf(start_date, end_date):
         DataGenerator.conferences += 1
         args = (
-            DataGenerator._ConfNameGenerator.get_conf_name(),
+            "'" + DataGenerator._ConfNameGenerator.get_conf_name() + "'",
             randint(DataGenerator.PPL_PER_CONF[0], DataGenerator.PPL_PER_CONF[1]),
             start_date.strftime(DataGenerator._DATE_FORMAT),
             end_date.strftime(DataGenerator._DATE_FORMAT),
         )
-        return "EXEC dbo.create_conference " + ", ".join(args)
+        return "EXEC dbo.create_conference " + DataGenerator._list_args(args)
 
-    def _generate_workshop(self, conf_id, start_datetime, end_datetime):
+    @staticmethod
+    def _generate_workshop(conf_id, start_datetime):
         DataGenerator.workshops += 1
+        length = randint(1, 5)
         args = (
             conf_id,
             randint(DataGenerator.PPL_PER_WORKSHOP[0], DataGenerator.PPL_PER_WORKSHOP[1]),
             start_datetime.strftime(DataGenerator._DATETIME_FORMAT),
-            end_datetime.strftime(DataGenerator._DATETIME_FORMAT),
+            (start_datetime + timedelta(hours=length)).strftime(DataGenerator._DATETIME_FORMAT),
+            randint(20, 40),
         )
-        return "EXEC dbo.create_workshop_for_conference " + ", ".join(args)
+        return "EXEC dbo.create_workshop_for_conference " + DataGenerator._list_args(args)
 
-    def _generate_participant(self, conf_id):
-        DataGenerator.participants += 1
+    @staticmethod
+    def _generate_client():
+        DataGenerator.clients += 1
+        is_company = bool(randint(1, 100) % 2)
         args = (
-            randint(1, DataGenerator.clients),
-            randint(DataGenerator.PPL_PER_WORKSHOP[0], DataGenerator.PPL_PER_WORKSHOP[1]),
-            DataGenerator._NameGenerator.get_first_name(),
-            DataGenerator._NameGenerator.get_last_name(),
+            DataGenerator._CompanyGenerator.get_company(),
             DataGenerator._NameGenerator.get_email(),
-            DataGenerator._NameGenerator.get_student_id(),
+            int(is_company),
         )
-        return "EXEC dbo.create_participant_for_client " + ", ".join(args)
+        return "EXEC dbo.create_client " + DataGenerator._list_args(args)
 
-    def _generate_conf_booking(self, conf_id, participant_id):
-        return "EXEC dbo.book_conference_day {}, {}".format(conf_id, participant_id)
+    @staticmethod
+    def _generate_participant(client_id, is_company):
+        DataGenerator.participants += 1
+        empty_info = not bool(randint(1, 100) % 5) and is_company
+        args = (
+            client_id,
+            'NULL' if empty_info else DataGenerator._NameGenerator.get_first_name(),
+            'NULL' if empty_info else DataGenerator._NameGenerator.get_last_name(),
+            'NULL' if empty_info else DataGenerator._NameGenerator.get_email(),
+            'NULL' if empty_info else DataGenerator._NameGenerator.get_student_id(),
+        )
+        return "EXEC dbo.create_participant_for_client " + DataGenerator._list_args(args)
 
-    def _generate_workshop_booking(self, workshop_id, participant_id):
-        return "EXEC dbo.book_workshop {}, {}".format(workshop_id, participant_id)
+    @staticmethod
+    def _generate_conf_booking(conf_id, participant_id, start_date, end_date):
+        return "EXEC dbo.register_for_conference {}, {}, {}, {}".format(conf_id, participant_id, start_date, end_date)
 
-    def _generate_price_thresholds(self, conf_id, start_date, end_date):
+    @staticmethod
+    def _generate_workshop_booking(workshop_id, participant_id):
+        return "EXEC dbo.register_for_workshop {}, {}".format(workshop_id, participant_id)
+
+    @staticmethod
+    def _generate_price_thresholds(conf_id, start_date, end_date):
         _timedelta = (end_date - start_date)
         steps = randint(
             DataGenerator.PRICES_PER_CONF[0], DataGenerator.PRICES_PER_CONF[1]
@@ -188,7 +212,7 @@ class DataGenerator(object):
         delta = end_date - start_date
         int_delta = (delta.days * 24) + delta.hours
         random_hour = randrange(int_delta)
-        return start_date + timedelta(hours=random_hour)
+        return (start_date + timedelta(hours=random_hour))
 
     @classmethod
     def generate(cls):
