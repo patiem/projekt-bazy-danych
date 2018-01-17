@@ -144,14 +144,13 @@ class DataGenerator(object):
         return DataGenerator.conferences
 
     @staticmethod
-    def _generate_workshop(conf_id, start_datetime):
+    def _generate_workshop(conf_id, start_datetime, end_datetime):
         DataGenerator.workshops += 1
-        length = randint(1, 5)
         args = (
             conf_id,
             randint(DataGenerator.PPL_PER_WORKSHOP[0], DataGenerator.PPL_PER_WORKSHOP[1]),
             start_datetime.strftime(DataGenerator._DATETIME_FORMAT),
-            (start_datetime + timedelta(hours=length)).strftime(DataGenerator._DATETIME_FORMAT),
+            end_datetime.strftime(DataGenerator._DATETIME_FORMAT),
             randint(20, 40),
         )
         print "EXEC dbo.create_workshop_for_conference " + DataGenerator._list_args(args)
@@ -187,9 +186,15 @@ class DataGenerator(object):
     def _generate_conf_booking(conf_id, participant_id, start_date, end_date):
         print "EXEC dbo.register_for_conference {}, {}, {}, {}".format(conf_id, participant_id, start_date, end_date)
 
+        if randint(1, 100) % 3:
+            print "EXEC dbo.pay_for_conference_registration {}".format(conf_id)
+
     @staticmethod
     def _generate_workshop_booking(workshop_id, participant_id):
         print "EXEC dbo.register_for_workshop {}, {}".format(workshop_id, participant_id)
+
+        if randint(1, 100) % 3:
+            print "EXEC dbo.pay_for_workshop {}".format(workshop_id)
 
     @staticmethod
     def _generate_price_thresholds(conf_id, start_date, end_date):
@@ -218,17 +223,36 @@ class DataGenerator(object):
 
     @classmethod
     def generate(cls, global_start_date=datetime.now() - timedelta(weeks=156), global_end_date=datetime.now()):
+        confs = {}
+
         start_date = copy(global_start_date)
         while start_date < global_end_date:
             _length = randint(DataGenerator.CONF_LENGTH[0], DataGenerator.CONF_LENGTH[1])
             end_date = start_date + timedelta(days=_length - 1)
             conf_id = DataGenerator._generate_conf(start_date, end_date)
+            confs[conf_id] = {
+                'start_date': start_date,
+                'end_date': end_date,
+                'workshops': [],
+            }
+            DataGenerator._generate_price_thresholds(conf_id, start_date - timedelta(days=30), start_date)
             for i in range(_length):
                 number_of_workshops = randint(DataGenerator.WORKSHOPS_PER_DAY[0], DataGenerator.WORKSHOPS_PER_DAY[1])
                 for __ in range(number_of_workshops):
                     hour = randint(5, 23)
-                    workshop_id = DataGenerator._generate_workshop(conf_id, (start_date + timedelta(days=i)).replace(hour=hour))
+                    _start_time = (start_date + timedelta(days=i)).replace(hour=hour)
+                    length = randint(1, 5)
+                    _end_time = (_start_time + timedelta(hours=length))
+                    workshop_id = DataGenerator._generate_workshop(conf_id, _start_time, _end_time)
+
+                    confs[conf_id]['workshops'].append({
+                        'id': workshop_id,
+                        'start_time': _start_time,
+                        'end_time': _end_time,
+                    })
 
 
             days_to_skip = randint(DataGenerator.DAYS_BETWEEN_CONFS[0], DataGenerator.DAYS_BETWEEN_CONFS[1])
             start_date += timedelta(days=days_to_skip)
+
+        # print confs
