@@ -14,7 +14,7 @@ Do zaimplementowania na końcu (funkcje które jedynie wyciągają dane, a nie w
 
 * [ ] lista aktywności klientów (na podstawie ilości uczestników?)
 
-* [ ] lista klientów, których trzeba dopytać o dane uczestników
+* [X] lista klientów, których trzeba dopytać o dane uczestników
 
 * [ ] raport: wyciąganie uczestników konferencji/warsztatów w dany dzień
     wraz z informacjami o płatnościach
