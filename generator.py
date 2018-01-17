@@ -1,12 +1,13 @@
 from random import randint, random, randrange
 from datetime import timedelta, datetime
+from copy import copy
 
 
 class DataGenerator(object):
     _DATE_FORMAT = '%Y-%m-%d'
     _DATETIME_FORMAT = '%Y-%m-%d %H:00'
 
-    CONFS_PER_MONTH = (2, 3)
+    DAYS_BETWEEN_CONFS = (10, 20)
     CONF_LENGTH = (1, 4)
     WORKSHOPS_PER_DAY = (2, 4)
     PRICES_PER_CONF = (2, 4)
@@ -139,7 +140,8 @@ class DataGenerator(object):
             start_date.strftime(DataGenerator._DATE_FORMAT),
             end_date.strftime(DataGenerator._DATE_FORMAT),
         )
-        return "EXEC dbo.create_conference " + DataGenerator._list_args(args)
+        print "EXEC dbo.create_conference " + DataGenerator._list_args(args)
+        return DataGenerator.conferences
 
     @staticmethod
     def _generate_workshop(conf_id, start_datetime):
@@ -152,7 +154,8 @@ class DataGenerator(object):
             (start_datetime + timedelta(hours=length)).strftime(DataGenerator._DATETIME_FORMAT),
             randint(20, 40),
         )
-        return "EXEC dbo.create_workshop_for_conference " + DataGenerator._list_args(args)
+        print "EXEC dbo.create_workshop_for_conference " + DataGenerator._list_args(args)
+        return DataGenerator.workshops
 
     @staticmethod
     def _generate_client():
@@ -163,7 +166,8 @@ class DataGenerator(object):
             DataGenerator._NameGenerator.get_email(),
             int(is_company),
         )
-        return "EXEC dbo.create_client " + DataGenerator._list_args(args)
+        print "EXEC dbo.create_client " + DataGenerator._list_args(args)
+        return DataGenerator.clients
 
     @staticmethod
     def _generate_participant(client_id, is_company):
@@ -176,15 +180,16 @@ class DataGenerator(object):
             'NULL' if empty_info else DataGenerator._NameGenerator.get_email(),
             'NULL' if empty_info else DataGenerator._NameGenerator.get_student_id(),
         )
-        return "EXEC dbo.create_participant_for_client " + DataGenerator._list_args(args)
+        print "EXEC dbo.create_participant_for_client " + DataGenerator._list_args(args)
+        return DataGenerator.participants
 
     @staticmethod
     def _generate_conf_booking(conf_id, participant_id, start_date, end_date):
-        return "EXEC dbo.register_for_conference {}, {}, {}, {}".format(conf_id, participant_id, start_date, end_date)
+        print "EXEC dbo.register_for_conference {}, {}, {}, {}".format(conf_id, participant_id, start_date, end_date)
 
     @staticmethod
     def _generate_workshop_booking(workshop_id, participant_id):
-        return "EXEC dbo.register_for_workshop {}, {}".format(workshop_id, participant_id)
+        print "EXEC dbo.register_for_workshop {}, {}".format(workshop_id, participant_id)
 
     @staticmethod
     def _generate_price_thresholds(conf_id, start_date, end_date):
@@ -198,14 +203,11 @@ class DataGenerator(object):
         ])
         student_discount = str(round(random(), 2))
 
-        ret = ''
         for price in prices:
-            ret += "EXEC dbo.create_price_threshold_for_conference {}, {}, {}, {}\n".format(
+            print "EXEC dbo.create_price_threshold_for_conference {}, {}, {}, {}".format(
                 conf_id, start_date.strftime(DataGenerator._DATE_FORMAT), price, student_discount
             )
             start_date += _timedelta / steps
-
-        return ret
 
     @staticmethod
     def get_random_date(start_date, end_date):
@@ -215,21 +217,18 @@ class DataGenerator(object):
         return (start_date + timedelta(hours=random_hour))
 
     @classmethod
-    def generate(cls):
-        #TODO beautify
-        start_date = datetime.now() - timedelta(years=3)
-        end_date = datetime.now()
-        for i in range(60):
-            _start_date = DataGenerator.get_random_date(start_date, end_date)
-            _end_date = DataGenerator.get_random_date(_start_date, _start_date + timedelta(days=20))
-            DataGenerator._generate_conf(_end_date, DataGenerator.get_random_date(_end_date, _end_date + timedelta(days=5)))
-            DataGenerator._generate_price_thresholds(_start_date, _end_date)
+    def generate(cls, global_start_date=datetime.now() - timedelta(weeks=156), global_end_date=datetime.now()):
+        start_date = copy(global_start_date)
+        while start_date < global_end_date:
+            _length = randint(DataGenerator.CONF_LENGTH[0], DataGenerator.CONF_LENGTH[1])
+            end_date = start_date + timedelta(days=_length - 1)
+            conf_id = DataGenerator._generate_conf(start_date, end_date)
+            for i in range(_length):
+                number_of_workshops = randint(DataGenerator.WORKSHOPS_PER_DAY[0], DataGenerator.WORKSHOPS_PER_DAY[1])
+                for __ in range(number_of_workshops):
+                    hour = randint(5, 23)
+                    workshop_id = DataGenerator._generate_workshop(conf_id, (start_date + timedelta(days=i)).replace(hour=hour))
 
-            conf_participants = []
-            for __ in range(100):
-                participant_id = randint(0, DataGenerator.participants)
-                DataGenerator._generate_conf_booking(i, participant_id)
-                conf_participants.append(participant_id)
 
-            for __ in range(4):
-                DataGenerator._generate_workshop(i, _end_date, DataGenerator.get_random_date(_end_date, _end_date + timedelta(days=5)))
+            days_to_skip = randint(DataGenerator.DAYS_BETWEEN_CONFS[0], DataGenerator.DAYS_BETWEEN_CONFS[1])
+            start_date += timedelta(days=days_to_skip)
