@@ -5,6 +5,7 @@ CREATE TABLE [Workshops] (
 	NumberOfSeats integer NOT NULL,
 	StartDateTime date NOT NULL,
 	EndDateTime date NOT NULL,
+	Price money NOT NULL,
 	LecturerID integer NOT NULL,
 )
 GO
@@ -33,7 +34,8 @@ CREATE TABLE [Conferences] (
 )
 GO
 CREATE TABLE [RegistrationDateRanges] (
-	RegistrationForConferenceID integer NOT NULL IDENTITY(1,1) PRIMARY KEY,
+	RegistrationDateRangeID integer NOT NULL IDENTITY(1,1) PRIMARY KEY,
+	RegistrationForConferenceID integer NOT NULL,
 	StartDate date NOT NULL,
 	EndDate date NOT NULL,
 )
@@ -59,7 +61,8 @@ CREATE TABLE [Lecturers] (
 )
 GO
 CREATE TABLE [ConferencePriceThresholds] (
-	ConferenceID integer NOT NULL IDENTITY(1,1) PRIMARY KEY,
+	ConferencePriceThresholdID integer NOT NULL IDENTITY(1,1) PRIMARY KEY,
+	ConferenceID integer NOT NULL,
 	StartDate date NOT NULL,
 	Price integer NOT NULL,
 	Discount float NOT NULL,

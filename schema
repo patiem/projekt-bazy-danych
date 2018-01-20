@@ -58,6 +58,6 @@ RegistrationsForWorkshops:
 
 ConferencePriceThresholds:
     ConferenceID = FK(Conferences)
-    StartDate   // data, od której ta cena jest aplikowana
+    EndDate   // data, do której ta cena jest aplikowana
     Price
     StudentDiscount
