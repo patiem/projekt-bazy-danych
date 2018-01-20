@@ -3,7 +3,7 @@ CREATE FUNCTION is_participant_registered_for_conference_day
   RETURNS BIT
 AS
   BEGIN
-    SET @RegistrationID = (
+    DECLARE @RegistrationID INT = (
       SELECT RegistrationForConferenceID
       FROM RegistrationsForConferences
       WHERE ParticipantID = @ParticipantID AND ConferenceID = @ConferenceID
@@ -14,8 +14,8 @@ AS
       WHERE RegistrationForConferenceID = @RegistrationID AND @Date BETWEEN StartDate AND EndDate
     )
       BEGIN
-        RETURN TRUE
+        RETURN 1
       END
 
-    RETURN FALSE
+    RETURN 0
   END
