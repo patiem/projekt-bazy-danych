@@ -2,21 +2,22 @@ CREATE FUNCTION get_seats_left_for_conference_at_date (@ConferenceID INT, @Date 
   RETURNS INT
 AS
   BEGIN
-    SET @NumberOfRegistrations = (
+    DECLARE @NumberOfRegistrations INT = (
       SELECT Count(*)
       FROM RegistrationsForConferences
       JOIN RegistrationDateRanges
           ON RegistrationsForConferences.RegistrationForConferenceID = RegistrationDateRanges.RegistrationForConferenceID
       WHERE
         RegistrationsForConferences.ConferenceID = @ConferenceID AND
-        @Date BETWEEN RegistrationDateRanges.StartTime AND RegistrationDateRanges.EndTime
+        @Date BETWEEN RegistrationDateRanges.StartDate AND RegistrationDateRanges.EndDate
     )
 
-    SET @NumberOfSeatsForConference = (
+    DECLARE @NumberOfSeatsForConference INT = (
       SELECT Conferences.NumberOfSeats FROM Conferences WHERE Conferences.ConferenceID = @ConferenceID
     )
 
-    SET @SeatsLeft = @NumberOfSeatsForConference - @NumberOfRegistrations
+    DECLARE @SeatsLeft INT = @NumberOfSeatsForConference - @NumberOfRegistrations
 
     RETURN @SeatsLeft
   END
+GO

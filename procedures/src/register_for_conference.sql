@@ -5,5 +5,5 @@ AS
       INSERT INTO RegistrationsForConferences (ConferenceID, ParticipantID)
         VALUES (@ConferenceID, @ParticipantID)
       INSERT INTO RegistrationDateRanges (RegistrationForConferenceID, StartDate, EndDate)
-        VALUES (SELECT SCOPE_IDENTITY(), @StartDate, @EndDate)
+        VALUES ((SELECT SCOPE_IDENTITY()), @StartDate, @EndDate)
   END
