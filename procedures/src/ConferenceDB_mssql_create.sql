@@ -1,6 +1,6 @@
 CREATE TABLE [Workshops] (
 	WorkshopID integer NOT NULL IDENTITY(1,1) PRIMARY KEY,
-	WorkshopName varchar(255) NOT NULL UNIQUE,
+	WorkshopName varchar(255) NOT NULL,
 	ConferenceID integer NOT NULL,
 	NumberOfSeats integer NOT NULL,
 	StartDateTime date NOT NULL,
@@ -11,8 +11,8 @@ CREATE TABLE [Workshops] (
 GO
 CREATE TABLE [Clients] (
 	ClientID integer NOT NULL IDENTITY(1,1) PRIMARY KEY,
-	ClientName varchar(255) NOT NULL UNIQUE,
-	Email varchar(255) NOT NULL UNIQUE,
+	ClientName varchar(255) NOT NULL,
+	Email varchar(255) NOT NULL,
 	IsCompany binary NOT NULL,
 )
 GO
@@ -21,13 +21,13 @@ CREATE TABLE [Participants] (
 	ClientID integer NOT NULL,
 	FirstName varchar(255),
 	LastName varchar(255),
-	Email varchar(255) UNIQUE,
+	Email varchar(255),
 	StudentID varchar(255),
 )
 GO
 CREATE TABLE [Conferences] (
 	ConferenceID integer NOT NULL IDENTITY(1,1) PRIMARY KEY,
-	ConferenceName varchar(255) NOT NULL UNIQUE,
+	ConferenceName varchar(255) NOT NULL,
 	NumberOfSeats integer NOT NULL,
 	StartDate date NOT NULL,
 	EndDate date NOT NULL,
