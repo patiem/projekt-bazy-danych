@@ -1,3 +1,5 @@
+--DOESN'T WORK
+
 CREATE TRIGGER unique_registration_for_workshop ON RegistrationsForWorkshops
 FOR INSERT, UPDATE
 AS

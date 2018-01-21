@@ -1,6 +1,6 @@
 CREATE VIEW dbo.ParticipantsWithInfoActionRequiredView
   AS
-    SELECT p.ParticipantID, p.ClientID
+    SELECT TOP 1000 p.ParticipantID, p.ClientID
     FROM Participants AS p
     WHERE (p.FirstName IS NULL OR p.LastName IS NULL OR p.Email IS NULL) AND EXISTS(
       SELECT *

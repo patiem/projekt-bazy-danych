@@ -9,11 +9,12 @@ AS
 
 UNION
 
-  SELECT 
-    FirstName,LastName, CONVERT(varchar(255), Workshops.WorkshopID), PaidAt, Price
+  SELECT
+    FirstName,LastName, CONVERT(varchar(255), Workshops.WorkshopID), PaidAt
   FROM RegistrationsForWorkshops
     INNER JOIN Participants ON Participants.ParticipantID = RegistrationsForWorkshops.ParticipantID
     INNER JOIN Workshops ON Workshops.WorkshopID = RegistrationsForWorkshops.WorkshopID
     INNER JOIN Conferences ON Workshops.ConferenceID = Conferences.ConferenceID
   WHERE Workshops.ConferenceID = @ConferenceID
   )
+GO

@@ -6,8 +6,8 @@ AS
 
     SELECT TOP 1 @CurrentPrice = p.Price, @StudentDiscount = p.Discount
     FROM ConferencePriceThresholds AS p
-    WHERE p.ConferenceID = @ConferenceID AND p.EndDate > GETDATE()
-    ORDER BY p.EndDate
+    WHERE p.ConferenceID = @ConferenceID AND p.StartDate > GETDATE()
+    ORDER BY p.StartDate
 
     IF (@ApplyStudentDiscount = 1)
       BEGIN
@@ -16,3 +16,4 @@ AS
 
     RETURN @CurrentPrice
   END
+GO
