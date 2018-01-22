@@ -338,6 +338,7 @@ AS
 
     RETURN 0
   END
+GO
 
 IF OBJECT_ID('dbo.report_best_clients') IS NOT NULL DROP FUNCTION dbo.report_best_clients
 GO
@@ -463,8 +464,9 @@ AS
          SELECT count(*)
          FROM inserted
        ) > (
-         SELECT TOP 1 NumberOfSeats
+         SELECT TOP 1 Conferences.NumberOfSeats
          FROM inserted
+          INNER JOIN Conferences ON Conferences.ConferenceID = inserted.ConferenceID
        )
       BEGIN
         RAISERROR ('Registrations exceed conference capacity', 16, 1)
@@ -490,8 +492,9 @@ AS
          SELECT Count(*)
          FROM inserted
        ) > (
-         SELECT TOP 1 NumberOfSeats
+         SELECT TOP 1 Workshops.NumberOfSeats
          FROM inserted
+          INNER JOIN Workshops ON Workshops.WorkshopID = inserted.WorkshopID
        )
       BEGIN
         RAISERROR ('Registrations exceed workshop capacity', 16, 1)
@@ -508,7 +511,7 @@ FOR INSERT
 AS
   BEGIN
     IF NOT (
-      SELECT Count(RegistrationsForWorkshops.RegistrationForWorkshopID)
+      SELECT Count(inserted.RegistrationForWorkshopID)
       FROM inserted
       INNER JOIN Workshops ON inserted.WorkshopID = Workshops.WorkshopID
       INNER JOIN Conferences ON Workshops.ConferenceID = Conferences.ConferenceID
@@ -517,7 +520,7 @@ AS
       INNER JOIN RegistrationDateRanges ON RegistrationsForConferences.RegistrationForConferenceID = RegistrationDateRanges.RegistrationForConferenceID
       WHERE Workshops.StartDateTime BETWEEN RegistrationDateRanges.StartDate AND RegistrationDateRanges.EndDate
     ) = (
-      SELECT Count(RegistrationsForWorkshops.RegistrationForWorkshopID)
+      SELECT Count(inserted.RegistrationForWorkshopID)
       FROM inserted
     )
       BEGIN
@@ -563,7 +566,7 @@ GO
 
 IF OBJECT_ID('dbo.v_participants_with_info_action_required') IS NOT NULL DROP VIEW dbo.v_participants_with_info_action_required
 GO
-CREATE VIEW dbo.ParticipantsWithInfoActionRequiredView
+CREATE VIEW dbo.v_participants_with_info_action_required
   AS
     SELECT TOP 1000 p.ParticipantID, p.ClientID
     FROM Participants AS p

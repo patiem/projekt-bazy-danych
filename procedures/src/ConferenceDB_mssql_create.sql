@@ -2,8 +2,8 @@ IF OBJECT_ID('Workshops_fk0') IS NOT NULL ALTER TABLE Workshops DROP CONSTRAINT 
 IF OBJECT_ID('Workshops_fk1') IS NOT NULL ALTER TABLE Workshops DROP CONSTRAINT Workshops_fk1
 IF OBJECT_ID('Participants_fk0') IS NOT NULL ALTER TABLE Participants DROP CONSTRAINT Participants_fk0
 IF OBJECT_ID('RegistrationDateRanges_fk0') IS NOT NULL ALTER TABLE RegistrationDateRanges DROP CONSTRAINT RegistrationDateRanges_fk0
+IF OBJECT_ID('RegistrationsForConferences_fk0') IS NOT NULL ALTER TABLE RegistrationsForConferences DROP CONSTRAINT RegistrationsForConferences_fk0
 IF OBJECT_ID('RegistrationsForConferences_fk1') IS NOT NULL ALTER TABLE RegistrationsForConferences DROP CONSTRAINT RegistrationsForConferences_fk1
-IF OBJECT_ID('RegistrationsForConferences_fk0') IS NOT NULL ALTER TABLE RegistrationsForConferences DROP CONSTRAINT RegistrationsForConferences_fk1
 IF OBJECT_ID('RegistrationsForWorkshops_fk0') IS NOT NULL ALTER TABLE RegistrationsForWorkshops DROP CONSTRAINT RegistrationsForWorkshops_fk0
 IF OBJECT_ID('RegistrationsForWorkshops_fk1') IS NOT NULL ALTER TABLE RegistrationsForWorkshops DROP CONSTRAINT RegistrationsForWorkshops_fk1
 IF OBJECT_ID('ConferencePriceThresholds_fk0') IS NOT NULL ALTER TABLE ConferencePriceThresholds DROP CONSTRAINT ConferencePriceThresholds_fk0
