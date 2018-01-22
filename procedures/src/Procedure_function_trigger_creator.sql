@@ -21,7 +21,7 @@ AS
 GO
 
 CREATE PROCEDURE dbo.create_conference
-  @ConferenceName VARCHAR(255), @NumberOFSeats INTEGER , @StartDate DATE , @EndDate DATE
+  @ConferenceName VARCHAR(255), @NumberOfSeats INTEGER , @StartDate DATE , @EndDate DATE
 AS
   BEGIN
     INSERT INTO Conferences VALUES (@ConferenceName, @NumberOfSeats, @StartDate, @EndDate)
@@ -75,10 +75,12 @@ CREATE PROCEDURE dbo.register_for_conference
 	@ConferenceID INTEGER, @ParticipantID INTEGER, @StartDate DATE, @EndDate Date
 AS
   BEGIN
+    BEGIN TRANSACTION
       INSERT INTO RegistrationsForConferences (ConferenceID, ParticipantID)
         VALUES (@ConferenceID, @ParticipantID)
       INSERT INTO RegistrationDateRanges (RegistrationForConferenceID, StartDate, EndDate)
         VALUES ((SELECT SCOPE_IDENTITY()), @StartDate, @EndDate)
+    COMMIT TRANSACTION
   END
 GO
 
@@ -177,7 +179,7 @@ CREATE FUNCTION report_best_clients (@ConferenceID INT)
   RETURNS TABLE
 AS
   RETURN (
-        SELECT TOP 1000 FirstName, LastName, 'Conference days' as Type, count(*) as Times FROM RegistrationsForConferences
+      SELECT TOP 1000 FirstName, LastName, 'Conference days' as Type, count(*) as Times FROM RegistrationsForConferences
       INNER JOIN Participants ON Participants.ParticipantID = RegistrationsForConferences.ParticipantID
       WHERE ConferenceID = @ConferenceID
       GROUP BY FirstName, LastName
@@ -259,7 +261,7 @@ AS
   RETURN (
       SELECT WorkshopName, NumberOfSeats, StartDateTime, EndDateTime, FirstName, LastName FROM Workshops
       INNER JOIN Lecturers ON Workshops.LecturerID = Lecturers.LecturerID
-    WHERE ConferenceID = @WorkshopID
+      WHERE ConferenceID = @WorkshopID
   )
 GO
 
@@ -268,17 +270,21 @@ CREATE TRIGGER participant_limit_conference
   FOR INSERT
 AS
   BEGIN
+    IF (SELECT Count(inserted.ConferenceID) FROM inserted) > 1
+      BEGIN
+        RAISERROR ('You cannot register for more than one conference at once', 16, 1)
+        ROLLBACK TRANSACTION
+      END
+
     IF (
          SELECT count(*)
          FROM inserted
-           INNER JOIN RegistrationsForConferences ON RegistrationsForConferences.ConferenceID = inserted.ConferenceID
-       ) = (
-         SELECT sum(NumberOfSeats)
-         FROM Conferences
-           INNER JOIN inserted ON Conferences.ConferenceID = inserted.ConferenceID
+       ) > (
+         SELECT TOP 1 NumberOfSeats
+         FROM inserted
        )
       BEGIN
-        RAISERROR ('Conference sold out', 16, 1)
+        RAISERROR ('Registrations exceed conference capacity', 16, 1)
         ROLLBACK TRANSACTION
       END
 
@@ -290,17 +296,20 @@ CREATE TRIGGER participant_limit_workshop
   FOR INSERT
 AS
   BEGIN
+    IF (SELECT Count(inserted.WorkshopID) FROM inserted) > 1
+      BEGIN
+        RAISERROR ('You cannot register for more than one workshop at once', 16, 1)
+        ROLLBACK TRANSACTION
+      END
     IF (
-         SELECT count(*)
+         SELECT Count(*)
          FROM inserted
-           INNER JOIN RegistrationsForWorkshops ON RegistrationsForWorkshops.WorkshopID = inserted.WorkshopID
-       ) = (
-         SELECT sum(NumberOfSeats)
-         FROM Workshops
-           INNER JOIN inserted ON Workshops.WorkshopID = inserted.WorkshopID
+       ) > (
+         SELECT TOP 1 NumberOfSeats
+         FROM inserted
        )
       BEGIN
-        RAISERROR ('Workshop sold out', 16, 1)
+        RAISERROR ('Registrations exceed workshop capacity', 16, 1)
         ROLLBACK TRANSACTION
       END
 
@@ -311,18 +320,21 @@ CREATE TRIGGER registration_for_workshop_if_in_conference ON RegistrationsForWor
 FOR INSERT
 AS
   BEGIN
-    IF NOT EXISTS(
-      SELECT *
+    IF NOT (
+      SELECT Count(RegistrationsForWorkshops.RegistrationForWorkshopID)
       FROM inserted
-      INNER JOIN Workshops
-	  ON inserted.WorkshopID = Workshops.WorkshopID
-      INNER JOIN Conferences
-	  ON Workshops.ConferenceID = Conferences.ConferenceID
+      INNER JOIN Workshops ON inserted.WorkshopID = Workshops.WorkshopID
+      INNER JOIN Conferences ON Workshops.ConferenceID = Conferences.ConferenceID
       INNER JOIN RegistrationsForConferences
-	  ON inserted.ParticipantID = RegistrationsForConferences.ParticipantID AND Conferences.ConferenceID = RegistrationsForConferences.ConferenceID
+	      ON inserted.ParticipantID = RegistrationsForConferences.ParticipantID AND Conferences.ConferenceID = RegistrationsForConferences.ConferenceID
+      INNER JOIN RegistrationDateRanges ON RegistrationsForConferences.RegistrationForConferenceID = RegistrationDateRanges.RegistrationForConferenceID
+      WHERE Workshops.StartDateTime BETWEEN RegistrationDateRanges.StartDate AND RegistrationDateRanges.EndDate
+    ) = (
+      SELECT Count(RegistrationsForWorkshops.RegistrationForWorkshopID)
+      FROM inserted
     )
       BEGIN
-        RAISERROR('Participant not registered for this conference day', 16, 1)
+        RAISERROR('Each participant must be registered for the conference on that day', 16, 1)
         ROLLBACK TRANSACTION
       END
   END
