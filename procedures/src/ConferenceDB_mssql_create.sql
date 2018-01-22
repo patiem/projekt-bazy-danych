@@ -63,7 +63,7 @@ GO
 CREATE TABLE [ConferencePriceThresholds] (
 	ConferencePriceThresholdID integer NOT NULL IDENTITY(1,1) PRIMARY KEY,
 	ConferenceID integer NOT NULL,
-	StartDate date NOT NULL,
+	EndDate date NOT NULL,
 	Price integer NOT NULL,
 	Discount float NOT NULL,
 )
