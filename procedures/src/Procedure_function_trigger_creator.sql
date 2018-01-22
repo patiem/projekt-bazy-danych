@@ -175,6 +175,28 @@ AS
   END
 GO
 
+CREATE FUNCTION is_participant_registered_for_some_workshop_at
+  (@ParticipantID INT, @StartDateTime DATETIME, @EndDateTime DATETIME)
+  RETURNS BIT
+AS
+  BEGIN
+    IF EXISTS(
+        SELECT * FROM RegistrationsForWorkshops
+          INNER JOIN Workshops AS W ON RegistrationsForWorkshops.WorkshopID = W.WorkshopID
+        WHERE ParticipantID = @ParticipantID AND (
+          @StartDateTime BETWEEN W.StartDateTime AND EndDateTime
+          OR
+          @EndDateTime BETWEEN W.StartDateTime AND EndDateTime
+        )
+    )
+      BEGIN
+        RETURN 1
+      END
+
+    RETURN 0
+  END
+
+
 CREATE FUNCTION report_best_clients (@ConferenceID INT)
   RETURNS TABLE
 AS
@@ -339,6 +361,24 @@ AS
       END
   END
 GO
+
+CREATE TRIGGER unique_registration_for_workshop ON RegistrationsForWorkshops
+  FOR INSERT, UPDATE
+AS
+  BEGIN
+    IF EXISTS(
+        SELECT *
+        FROM inserted
+          INNER JOIN RegistrationsForWorkshops
+            ON inserted.WorkshopID = RegistrationsForWorkshops.WorkshopID AND
+               inserted.ParticipantID = RegistrationsForWorkshops.ParticipantID
+    )
+      BEGIN
+        RAISERROR('Some of the participants are already registered for this workshop', 16, 1)
+        ROLLBACK TRANSACTION
+      END
+  END
+
 
 CREATE VIEW dbo.ConferenceRegistrationsToCancelView
   AS
