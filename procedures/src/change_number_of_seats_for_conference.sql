@@ -8,8 +8,8 @@ AS
     DECLARE @StartDate DATE
     DECLARE @EndDate DATE
 
-    SELECT @StartDate = c.StartDate, @EndDate = c.@EndDate
-    FROM Conference AS c
+    SELECT @StartDate = c.StartDate, @EndDate = c.EndDate
+    FROM Conferences AS c
     WHERE c.ConferenceID = @ConferenceID
 
     WHILE (@StartDate < @EndDate)
@@ -22,11 +22,11 @@ AS
         SET @StartDate = DATEADD(DAY, 1, @StartDate);
       END
 
-    SELECT @CurrentNumberOfSeats = c.NumberOfSeats FROM Conference AS c WHERE c.ConferenceID = @ConferenceID
+    SELECT @CurrentNumberOfSeats = c.NumberOfSeats FROM Conferences AS c WHERE c.ConferenceID = @ConferenceID
 
     IF @CurrentNumberOfSeats - @MinSeatsLeft > @Seats -- there are more registered than @Seats
       BEGIN
         RAISERROR('There are already more participants registered.', 16, 1)
       END
-    UPDATE Conference SET NumberOfSeats = @Seats WHERE ConferenceID = @ConferenceID
+    UPDATE Conferences SET NumberOfSeats = @Seats WHERE ConferenceID = @ConferenceID
   END

@@ -3,13 +3,13 @@ CREATE PROCEDURE dbo.cancel_workshop_registration
 AS
   BEGIN
     IF (
-      SELECT w.StartDateTime FROM Workshop AS w WHERE w.WorkshopID = @WorkshopID
+      SELECT w.StartDateTime FROM Workshops AS w WHERE w.WorkshopID = @WorkshopID
     ) > GETDATE()
       BEGIN
         RAISERROR('Cannot cancel registration for current/past workshop', 16, 1)
       END
 
-    DELETE
-    FROM RegistrationsForWorkshop AS r
-    WHERE r.WorkshopID = @WorkshopID AND r.ParticipantID = @ParticipantID
+    DELETE FROM dbo.RegistrationsForWorkshops
+    WHERE dbo.RegistrationsForWorkshops.WorkshopID = @WorkshopID AND
+          dbo.RegistrationsForWorkshops.ParticipantID = @ParticipantID
   END

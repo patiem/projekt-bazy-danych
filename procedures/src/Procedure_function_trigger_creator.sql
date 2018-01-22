@@ -48,7 +48,7 @@ AS
 GO
 
 CREATE PROCEDURE dbo.create_workshop_for_conference
-  @WorkshopName VARCHAR(255), @ConferenceID INTEGER, @NumberOFSeats INTEGER, @StartDateTime DATE, @EndDateTime DATE, @Price FLOAT, @LecturerID INT
+  @WorkshopName VARCHAR(255), @ConferenceID INTEGER, @NumberOfSeats INTEGER, @StartDateTime DATE, @EndDateTime DATE, @Price FLOAT, @LecturerID INT
 AS
   BEGIN
     INSERT INTO Workshops VALUES (@WorkshopName, @ConferenceID, @NumberOfSeats, @StartDateTime, @EndDateTime, @Price, @LecturerID)
@@ -348,6 +348,100 @@ CREATE VIEW dbo.ParticipantsWithInfoActionRequiredView
             AND c.StartDate BETWEEN DATEADD(WEEK, -2, GETDATE()) AND DATEADD(WEEK, -1, GETDATE())
     )
     ORDER BY p.ClientID
+GO
+
+CREATE PROCEDURE dbo.change_number_of_seats_for_conference
+    @ConferenceID INT, @Seats INT
+AS
+  BEGIN
+    DECLARE @CurrentNumberOfSeats INT, @MinSeatsLeft INT
+    SET @MinSeatsLeft = 9999
+
+    DECLARE @StartDate DATE
+    DECLARE @EndDate DATE
+
+    SELECT @StartDate = c.StartDate, @EndDate = c.EndDate
+    FROM Conferences AS c
+    WHERE c.ConferenceID = @ConferenceID
+
+    WHILE (@StartDate < @EndDate)
+      BEGIN
+        IF dbo.get_seats_left_for_conference_at_date(@ConferenceID, @StartDate) < @MinSeatsLeft
+          BEGIN
+            SET @MinSeatsLeft = dbo.get_seats_left_for_conference_at_date(@ConferenceID, @StartDate)
+          END
+
+        SET @StartDate = DATEADD(DAY, 1, @StartDate);
+      END
+
+    SELECT @CurrentNumberOfSeats = c.NumberOfSeats FROM Conferences AS c WHERE c.ConferenceID = @ConferenceID
+
+    IF @CurrentNumberOfSeats - @MinSeatsLeft > @Seats -- there are more registered than @Seats
+      BEGIN
+        RAISERROR('There are already more participants registered.', 16, 1)
+      END
+    UPDATE Conferences SET NumberOfSeats = @Seats WHERE ConferenceID = @ConferenceID
+  END
+GO
+
+CREATE PROCEDURE dbo.change_number_of_seats_for_workshop
+    @WorkshopID INT, @Seats INT
+AS
+  BEGIN
+    DECLARE @CurrentNumberOfSeats INT, @SeatsLeft INT
+
+    SET @SeatsLeft = dbo.get_seats_left_for_workshop(@WorkshopID)
+    SELECT @CurrentNumberOfSeats = Workshops.NumberOfSeats FROM Workshops WHERE Workshops.WorkshopID = @WorkshopID
+
+    IF (@CurrentNumberOfSeats - @SeatsLeft) > @Seats
+      BEGIN
+        RAISERROR('There are already more participants registered.', 16, 1)
+      END
+    UPDATE Workshops SET NumberOfSeats = @Seats WHERE WorkshopID = @WorkshopID
+  END
+GO
+
+CREATE PROCEDURE dbo.change_workshop_price
+    @WorkshopID INT, @NewPrice MONEY
+AS
+  BEGIN
+    UPDATE Workshops SET Price = @NewPrice WHERE WorkshopID = @WorkshopID
+  END
+GO
+
+CREATE PROCEDURE dbo.cancel_conference_registration
+    @ConferenceID INT, @ParticipantID INT
+AS
+  BEGIN
+    IF (
+         SELECT c.StartDate FROM Conferences AS c WHERE c.ConferenceID = @ConferenceID
+       ) > GETDATE()
+      BEGIN
+        RAISERROR('Cannot cancel registration for current/past conference', 16, 1)
+      END
+
+    DELETE
+    FROM dbo.RegistrationsForConferences
+    WHERE dbo.RegistrationsForConferences.ConferenceID = @ConferenceID AND
+          dbo.RegistrationsForConferences.ParticipantID = @ParticipantID
+  END
+GO
+
+CREATE PROCEDURE dbo.cancel_workshop_registration
+    @WorkshopID INT, @ParticipantID INT
+AS
+  BEGIN
+    IF (
+      SELECT w.StartDateTime FROM Workshops AS w WHERE w.WorkshopID = @WorkshopID
+    ) > GETDATE()
+      BEGIN
+        RAISERROR('Cannot cancel registration for current/past workshop', 16, 1)
+      END
+
+    DELETE FROM dbo.RegistrationsForWorkshops
+    WHERE dbo.RegistrationsForWorkshops.WorkshopID = @WorkshopID AND
+          dbo.RegistrationsForWorkshops.ParticipantID = @ParticipantID
+  END
 GO
 
 
