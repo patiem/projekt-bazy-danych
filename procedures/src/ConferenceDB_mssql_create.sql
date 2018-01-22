@@ -4,8 +4,10 @@ IF OBJECT_ID('Participants_fk0') IS NOT NULL ALTER TABLE Participants DROP CONST
 IF OBJECT_ID('RegistrationDateRanges_fk0') IS NOT NULL ALTER TABLE RegistrationDateRanges DROP CONSTRAINT RegistrationDateRanges_fk0
 IF OBJECT_ID('RegistrationsForConferences_fk0') IS NOT NULL ALTER TABLE RegistrationsForConferences DROP CONSTRAINT RegistrationsForConferences_fk0
 IF OBJECT_ID('RegistrationsForConferences_fk1') IS NOT NULL ALTER TABLE RegistrationsForConferences DROP CONSTRAINT RegistrationsForConferences_fk1
+IF OBJECT_ID('RegistrationsForConferences_uq1') IS NOT NULL ALTER TABLE RegistrationsForConferences DROP CONSTRAINT RegistrationsForConferences_uq1
 IF OBJECT_ID('RegistrationsForWorkshops_fk0') IS NOT NULL ALTER TABLE RegistrationsForWorkshops DROP CONSTRAINT RegistrationsForWorkshops_fk0
 IF OBJECT_ID('RegistrationsForWorkshops_fk1') IS NOT NULL ALTER TABLE RegistrationsForWorkshops DROP CONSTRAINT RegistrationsForWorkshops_fk1
+IF OBJECT_ID('RegistrationsForWorkshops_uq1') IS NOT NULL ALTER TABLE RegistrationsForWorkshops DROP CONSTRAINT RegistrationsForWorkshops_uq1
 IF OBJECT_ID('ConferencePriceThresholds_fk0') IS NOT NULL ALTER TABLE ConferencePriceThresholds DROP CONSTRAINT ConferencePriceThresholds_fk0
 GO
 
@@ -113,6 +115,9 @@ GO
 IF OBJECT_ID('RegistrationsForConferences_fk1') IS NOT NULL ALTER TABLE RegistrationsForConferences DROP CONSTRAINT RegistrationsForConferences_fk1
 ALTER TABLE [RegistrationsForConferences] WITH CHECK ADD CONSTRAINT [RegistrationsForConferences_fk1] FOREIGN KEY ([ParticipantID]) REFERENCES [Participants]([ParticipantID])
 GO
+IF OBJECT_ID('RegistrationsForConferences_uq1') IS NOT NULL ALTER TABLE RegistrationsForConferences DROP CONSTRAINT RegistrationsForConferences_uq1
+ALTER TABLE [RegistrationsForConferences] WITH CHECK ADD CONSTRAINT [RegistrationsForConferences_uq1] UNIQUE (ParticipantID, ConferenceID)
+GO
 
 IF OBJECT_ID('RegistrationsForWorkshops_fk0') IS NOT NULL ALTER TABLE RegistrationsForWorkshops DROP CONSTRAINT RegistrationsForWorkshops_fk0
 ALTER TABLE [RegistrationsForWorkshops] WITH CHECK ADD CONSTRAINT [RegistrationsForWorkshops_fk0] FOREIGN KEY ([WorkshopID]) REFERENCES [Workshops]([WorkshopID])
@@ -120,9 +125,11 @@ GO
 IF OBJECT_ID('RegistrationsForWorkshops_fk1') IS NOT NULL ALTER TABLE RegistrationsForWorkshops DROP CONSTRAINT RegistrationsForWorkshops_fk1
 ALTER TABLE [RegistrationsForWorkshops] WITH CHECK ADD CONSTRAINT [RegistrationsForWorkshops_fk1] FOREIGN KEY ([ParticipantID]) REFERENCES [Participants]([ParticipantID])
 GO
+IF OBJECT_ID('RegistrationsForWorkshops_uq1') IS NOT NULL ALTER TABLE RegistrationsForWorkshops DROP CONSTRAINT RegistrationsForWorkshops_uq1
+ALTER TABLE [RegistrationsForWorkshops] WITH CHECK ADD CONSTRAINT [RegistrationsForWorkshops_uq1] UNIQUE (ParticipantID, WorkshopID)
+GO
 
 
 IF OBJECT_ID('ConferencePriceThresholds_fk0') IS NOT NULL ALTER TABLE ConferencePriceThresholds DROP CONSTRAINT ConferencePriceThresholds_fk0
 ALTER TABLE [ConferencePriceThresholds] WITH CHECK ADD CONSTRAINT [ConferencePriceThresholds_fk0] FOREIGN KEY ([ConferenceID]) REFERENCES [Conferences]([ConferenceID])
 GO
-

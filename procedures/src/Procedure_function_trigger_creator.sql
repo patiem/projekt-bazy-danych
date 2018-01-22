@@ -530,26 +530,6 @@ AS
   END
 GO
 
-IF OBJECT_ID('dbo.unique_registration_for_workshop') IS NOT NULL DROP TRIGGER dbo.unique_registration_for_workshop
-GO
-CREATE TRIGGER dbo.unique_registration_for_workshop ON RegistrationsForWorkshops
-  FOR INSERT, UPDATE
-AS
-  BEGIN
-    IF EXISTS(
-        SELECT *
-        FROM inserted
-          INNER JOIN RegistrationsForWorkshops
-            ON inserted.WorkshopID = RegistrationsForWorkshops.WorkshopID AND
-               inserted.ParticipantID = RegistrationsForWorkshops.ParticipantID
-    )
-      BEGIN
-        RAISERROR('Some of the participants are already registered for this workshop', 16, 1)
-        ROLLBACK TRANSACTION
-      END
-  END
-GO
-
 
 ------------------------------------------------------------------------------------------------------------------------
 -- Views
