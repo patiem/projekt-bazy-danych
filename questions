@@ -1,6 +1,0 @@
-* Raport na dany dzień ma zawierać informacje o płatnościach. Czy to
-    ma być cena jaką zapłacił klient (bo zapłacić musiał - w przeciwnym 
-    wypadku rezerwacja by była anulowana wcześniej)?
-
-* Czy konferencja może mieć inną liczbę dostępnych miejsc na każdy dzień konferencji?
-    (w seats_left_for_conference_at_date zakładam, że nie)
