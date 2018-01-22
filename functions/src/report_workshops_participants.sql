@@ -1,9 +1,0 @@
-CREATE FUNCTION report_workshops_participants (@WorkshopID INT)
-  RETURNS TABLE
-AS
-  RETURN (
-      SELECT Participants.FirstName, Participants.LastName FROM Workshops
-        INNER JOIN RegistrationsForWorkshops ON RegistrationsForWorkshops.WorkshopID = Workshops.WorkshopID
-        INNER JOIN Participants ON Participants.ParticipantID = RegistrationsForWorkshops.ParticipantID
-        WHERE Workshops.WorkshopID = @WorkshopID
-  )
