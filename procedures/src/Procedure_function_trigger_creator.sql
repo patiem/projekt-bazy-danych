@@ -1,3 +1,9 @@
+------------------------------------------------------------------------------------------------------------------------
+-- Procedures
+------------------------------------------------------------------------------------------------------------------------
+
+IF OBJECT_ID('dbo.batch_register_for_conference_for_client') IS NOT NULL DROP PROCEDURE dbo.batch_register_for_conference_for_client
+GO
 CREATE PROCEDURE dbo.batch_register_for_conference_for_client
     @ClientID INTEGER, @ConferenceID INTEGER, @StartDate DATE, @EndDate Date, @NumberOfRegistrations INTEGER
 AS
@@ -12,6 +18,8 @@ AS
   END
 GO
 
+IF OBJECT_ID('dbo.create_client') IS NOT NULL DROP PROCEDURE dbo.create_client
+GO
 CREATE PROCEDURE dbo.create_client
     @ClientName VARCHAR(255), @Email VARCHAR(255), @IsCompany BIT = 0
 AS
@@ -20,6 +28,8 @@ AS
   END
 GO
 
+IF OBJECT_ID('dbo.create_conference') IS NOT NULL DROP PROCEDURE dbo.create_conference
+GO
 CREATE PROCEDURE dbo.create_conference
   @ConferenceName VARCHAR(255), @NumberOfSeats INTEGER , @StartDate DATE , @EndDate DATE
 AS
@@ -28,6 +38,8 @@ AS
   END
 GO
 
+IF OBJECT_ID('dbo.create_participant_for_client') IS NOT NULL DROP PROCEDURE dbo.create_participant_for_client
+GO
 CREATE PROCEDURE dbo.create_participant_for_client
     @ClientID VARCHAR(255), @FirstName VARCHAR(255) = NULL, @LastName VARCHAR(255) = NULL, @Email VARCHAR(255) = NULL,
     @StudentID  VARCHAR(255) = NULL
@@ -38,6 +50,8 @@ AS
   END
 GO
 
+IF OBJECT_ID('dbo.create_price_threshold_for_conference') IS NOT NULL DROP PROCEDURE dbo.create_price_threshold_for_conference
+GO
 CREATE PROCEDURE dbo.create_price_threshold_for_conference
     @ConferenceID INT, @EndDate DATE, @Price INT, @StudentDiscount FLOAT
 AS
@@ -47,6 +61,8 @@ AS
   END
 GO
 
+IF OBJECT_ID('dbo.create_workshop_for_conference') IS NOT NULL DROP PROCEDURE dbo.create_workshop_for_conference
+GO
 CREATE PROCEDURE dbo.create_workshop_for_conference
   @WorkshopName VARCHAR(255), @ConferenceID INTEGER, @NumberOfSeats INTEGER, @StartDateTime DATE, @EndDateTime DATE, @Price FLOAT, @LecturerID INT
 AS
@@ -55,6 +71,8 @@ AS
   END
 GO
 
+IF OBJECT_ID('dbo.pay_for_conference_registration') IS NOT NULL DROP PROCEDURE dbo.pay_for_conference_registration
+GO
 CREATE PROCEDURE dbo.pay_for_conference_registration
     @RegistrationForConferenceID INT, @PaidAt DATE
 AS
@@ -63,6 +81,8 @@ AS
   END
 GO
 
+IF OBJECT_ID('dbo.pay_for_workshop') IS NOT NULL DROP PROCEDURE dbo.pay_for_workshop
+GO
 CREATE PROCEDURE dbo.pay_for_workshop
     @WorkshopID INT, @PaidAt DATE
 AS
@@ -71,6 +91,8 @@ AS
   END
 GO
 
+IF OBJECT_ID('dbo.register_for_conference') IS NOT NULL DROP PROCEDURE dbo.register_for_conference
+GO
 CREATE PROCEDURE dbo.register_for_conference
 	@ConferenceID INTEGER, @ParticipantID INTEGER, @StartDate DATE, @EndDate Date
 AS
@@ -84,6 +106,8 @@ AS
   END
 GO
 
+IF OBJECT_ID('dbo.register_for_workshop') IS NOT NULL DROP PROCEDURE dbo.register_for_workshop
+GO
 CREATE PROCEDURE dbo.register_for_workshop
 	@WorkshopID INTEGER, @ParticipantID INTEGER
 AS
@@ -92,316 +116,8 @@ AS
   END
 GO
 
-CREATE FUNCTION dbo.get_current_conference_price (@ConferenceID INTEGER, @ApplyStudentDiscount BIT)
-  RETURNS MONEY
-AS
-  BEGIN
-    DECLARE @CurrentPrice INTEGER, @StudentDiscount INTEGER;
-
-    SELECT TOP 1 @CurrentPrice = p.Price, @StudentDiscount = p.Discount
-    FROM ConferencePriceThresholds AS p
-    WHERE p.ConferenceID = @ConferenceID AND p.EndDate > GETDATE()
-    ORDER BY p.EndDate
-
-    IF (@ApplyStudentDiscount = 1)
-      BEGIN
-        SET @CurrentPrice = @CurrentPrice * (1 - @StudentDiscount)
-      END
-
-    RETURN @CurrentPrice
-  END
+IF OBJECT_ID('dbo.change_number_of_seats_for_conference') IS NOT NULL DROP PROCEDURE dbo.change_number_of_seats_for_conference
 GO
-
-CREATE FUNCTION dbo.get_seats_left_for_conference_at_date (@ConferenceID INT, @Date DATE)
-  RETURNS INT
-AS
-  BEGIN
-    DECLARE @NumberOfRegistrations INT = (
-      SELECT Count(*)
-      FROM RegistrationsForConferences
-      JOIN RegistrationDateRanges
-          ON RegistrationsForConferences.RegistrationForConferenceID = RegistrationDateRanges.RegistrationForConferenceID
-      WHERE
-        RegistrationsForConferences.ConferenceID = @ConferenceID AND
-        @Date BETWEEN RegistrationDateRanges.StartDate AND RegistrationDateRanges.EndDate
-    )
-
-    DECLARE @NumberOfSeatsForConference INT = (
-      SELECT Conferences.NumberOfSeats FROM Conferences WHERE Conferences.ConferenceID = @ConferenceID
-    )
-
-    DECLARE @SeatsLeft INT = @NumberOfSeatsForConference - @NumberOfRegistrations
-
-    RETURN @SeatsLeft
-  END
-GO
-
-CREATE FUNCTION dbo.get_seats_left_for_workshop (@WorkshopID INT)
-  RETURNS INT
-AS
-  BEGIN
-    DECLARE @NumberOfRegistrations INT = (
-      SELECT Count(*) FROM RegistrationsForWorkshops WHERE RegistrationsForWorkshops.WorkshopID = @WorkshopID
-    )
-    DECLARE @NumberOfSeatsForWorkshop INT = (
-      SELECT Workshops.NumberOfSeats FROM Workshops WHERE Workshops.WorkshopID = @WorkshopID
-    )
-    DECLARE @SeatsLeft INT = @NumberOfSeatsForWorkshop - @NumberOfRegistrations
-
-    RETURN @SeatsLeft
-  END
-GO
-
-CREATE FUNCTION dbo.is_participant_registered_for_conference_day
-  (@ParticipantID INT, @ConferenceID INT, @Date DATE)
-  RETURNS BIT
-AS
-  BEGIN
-    DECLARE @RegistrationID INT = (
-      SELECT RegistrationForConferenceID
-      FROM RegistrationsForConferences
-      WHERE ParticipantID = @ParticipantID AND ConferenceID = @ConferenceID
-    )
-
-    IF EXISTS(
-      SELECT 1 FROM RegistrationDateRanges
-      WHERE RegistrationForConferenceID = @RegistrationID AND @Date BETWEEN StartDate AND EndDate
-    )
-      BEGIN
-        RETURN 1
-      END
-
-    RETURN 0
-  END
-GO
-
-CREATE FUNCTION dbo.is_participant_registered_for_some_workshop_at
-  (@ParticipantID INT, @StartDateTime DATETIME, @EndDateTime DATETIME)
-  RETURNS BIT
-AS
-  BEGIN
-    IF EXISTS(
-        SELECT * FROM RegistrationsForWorkshops
-          INNER JOIN Workshops AS W ON RegistrationsForWorkshops.WorkshopID = W.WorkshopID
-        WHERE ParticipantID = @ParticipantID AND (
-          @StartDateTime BETWEEN W.StartDateTime AND EndDateTime
-          OR
-          @EndDateTime BETWEEN W.StartDateTime AND EndDateTime
-        )
-    )
-      BEGIN
-        RETURN 1
-      END
-
-    RETURN 0
-  END
-
-
-CREATE FUNCTION dbo.report_best_clients (@ConferenceID INT)
-  RETURNS TABLE
-AS
-  RETURN (
-      SELECT TOP 1000 FirstName, LastName, 'Conference days' as Type, count(*) as Times FROM RegistrationsForConferences
-      INNER JOIN Participants ON Participants.ParticipantID = RegistrationsForConferences.ParticipantID
-      WHERE ConferenceID = @ConferenceID
-      GROUP BY FirstName, LastName
-
-UNION
-
-SELECT TOP 1000 FirstName, LastName, 'Workshops' as Type, count(*) as Times FROM RegistrationsForWorkshops
-      INNER JOIN Participants ON Participants.ParticipantID = RegistrationsForWorkshops.ParticipantID
-      INNER JOIN Workshops ON RegistrationsForWorkshops.WorkshopID = Workshops.WorkshopID
-      WHERE ConferenceID = @ConferenceID
-      GROUP BY FirstName, LastName ORDER BY Times DESC
-  )
-GO
-
-CREATE FUNCTION dbo.report_conference_participants (@ConferenceID INT)
-  RETURNS TABLE
-AS
-  RETURN(
-  SELECT
-    FirstName,
-    LastName,
-    StartDate,
-    EndDate
-  FROM RegistrationsForConferences
-    INNER JOIN Participants ON Participants.ParticipantID = RegistrationsForConferences.ParticipantID
-    INNER JOIN RegistrationDateRanges
-      ON RegistrationDateRanges.RegistrationForConferenceID = RegistrationsForConferences.RegistrationForConferenceID
-  WHERE ConferenceID = @ConferenceID
-  )
-GO
-
-CREATE FUNCTION dbo.report_most_popular_workshop (@ConferenceID INT)
-  RETURNS TABLE
-AS
-  RETURN (
-      SELECT TOP 1 Workshops.WorkshopName, count(*) AS Attendees FROM Workshops
-        INNER JOIN RegistrationsForWorkshops ON RegistrationsForWorkshops.WorkshopID = Workshops.WorkshopID
-        INNER JOIN Participants ON Participants.ParticipantID = RegistrationsForWorkshops.ParticipantID
-        WHERE Workshops.ConferenceID = @ConferenceID
-	GROUP BY Workshops.WorkshopName ORDER BY Attendees
-  )
-GO
-
-CREATE FUNCTION dbo.report_payments (@ConferenceID INT)
-  RETURNS TABLE
-AS
-  RETURN(
-  SELECT
-    FirstName, LastName, 'Conference' as Type, PaidAt FROM RegistrationsForConferences
-    INNER JOIN Participants ON Participants.ParticipantID = RegistrationsForConferences.ParticipantID
-  WHERE ConferenceID = @ConferenceID
-
-UNION
-
-  SELECT
-    FirstName,LastName, CONVERT(varchar(255), Workshops.WorkshopID), PaidAt
-  FROM RegistrationsForWorkshops
-    INNER JOIN Participants ON Participants.ParticipantID = RegistrationsForWorkshops.ParticipantID
-    INNER JOIN Workshops ON Workshops.WorkshopID = RegistrationsForWorkshops.WorkshopID
-    INNER JOIN Conferences ON Workshops.ConferenceID = Conferences.ConferenceID
-  WHERE Workshops.ConferenceID = @ConferenceID
-  )
-GO
-
-CREATE FUNCTION dbo.report_workshops_participants (@WorkshopID INT)
-  RETURNS TABLE
-AS
-  RETURN (
-      SELECT Participants.FirstName, Participants.LastName FROM Workshops
-        INNER JOIN RegistrationsForWorkshops ON RegistrationsForWorkshops.WorkshopID = Workshops.WorkshopID
-        INNER JOIN Participants ON Participants.ParticipantID = RegistrationsForWorkshops.ParticipantID
-        WHERE Workshops.WorkshopID = @WorkshopID
-  )
-GO
-
-CREATE FUNCTION dbo.show_workshops (@WorkshopID INT)
-  RETURNS TABLE
-AS
-  RETURN (
-      SELECT WorkshopName, NumberOfSeats, StartDateTime, EndDateTime, FirstName, LastName FROM Workshops
-      INNER JOIN Lecturers ON Workshops.LecturerID = Lecturers.LecturerID
-      WHERE ConferenceID = @WorkshopID
-  )
-GO
-
-CREATE TRIGGER dbo.participant_limit_conference
-  ON RegistrationsForConferences
-  FOR INSERT
-AS
-  BEGIN
-    IF (SELECT Count(inserted.ConferenceID) FROM inserted) > 1
-      BEGIN
-        RAISERROR ('You cannot register for more than one conference at once', 16, 1)
-        ROLLBACK TRANSACTION
-      END
-
-    IF (
-         SELECT count(*)
-         FROM inserted
-       ) > (
-         SELECT TOP 1 NumberOfSeats
-         FROM inserted
-       )
-      BEGIN
-        RAISERROR ('Registrations exceed conference capacity', 16, 1)
-        ROLLBACK TRANSACTION
-      END
-
-  END
-GO
-
-CREATE TRIGGER dbo.participant_limit_workshop
-  ON RegistrationsForWorkshops
-  FOR INSERT
-AS
-  BEGIN
-    IF (SELECT Count(inserted.WorkshopID) FROM inserted) > 1
-      BEGIN
-        RAISERROR ('You cannot register for more than one workshop at once', 16, 1)
-        ROLLBACK TRANSACTION
-      END
-    IF (
-         SELECT Count(*)
-         FROM inserted
-       ) > (
-         SELECT TOP 1 NumberOfSeats
-         FROM inserted
-       )
-      BEGIN
-        RAISERROR ('Registrations exceed workshop capacity', 16, 1)
-        ROLLBACK TRANSACTION
-      END
-
-  END
-GO
-
-CREATE TRIGGER dbo.registration_for_workshop_if_in_conference ON RegistrationsForWorkshops
-FOR INSERT
-AS
-  BEGIN
-    IF NOT (
-      SELECT Count(RegistrationsForWorkshops.RegistrationForWorkshopID)
-      FROM inserted
-      INNER JOIN Workshops ON inserted.WorkshopID = Workshops.WorkshopID
-      INNER JOIN Conferences ON Workshops.ConferenceID = Conferences.ConferenceID
-      INNER JOIN RegistrationsForConferences
-	      ON inserted.ParticipantID = RegistrationsForConferences.ParticipantID AND Conferences.ConferenceID = RegistrationsForConferences.ConferenceID
-      INNER JOIN RegistrationDateRanges ON RegistrationsForConferences.RegistrationForConferenceID = RegistrationDateRanges.RegistrationForConferenceID
-      WHERE Workshops.StartDateTime BETWEEN RegistrationDateRanges.StartDate AND RegistrationDateRanges.EndDate
-    ) = (
-      SELECT Count(RegistrationsForWorkshops.RegistrationForWorkshopID)
-      FROM inserted
-    )
-      BEGIN
-        RAISERROR('Each participant must be registered for the conference on that day', 16, 1)
-        ROLLBACK TRANSACTION
-      END
-  END
-GO
-
-CREATE TRIGGER dbo.unique_registration_for_workshop ON RegistrationsForWorkshops
-  FOR INSERT, UPDATE
-AS
-  BEGIN
-    IF EXISTS(
-        SELECT *
-        FROM inserted
-          INNER JOIN RegistrationsForWorkshops
-            ON inserted.WorkshopID = RegistrationsForWorkshops.WorkshopID AND
-               inserted.ParticipantID = RegistrationsForWorkshops.ParticipantID
-    )
-      BEGIN
-        RAISERROR('Some of the participants are already registered for this workshop', 16, 1)
-        ROLLBACK TRANSACTION
-      END
-  END
-
-
-CREATE VIEW dbo.ConferenceRegistrationsToCancelView
-  AS
-    SELECT r.RegistrationForConferenceID
-    FROM RegistrationsForConferences AS r
-      INNER JOIN Conferences AS c ON c.ConferenceID = r.ConferenceID
-    WHERE r.PaidAt IS NULL AND GETDATE() < DATEADD(WEEK, -1, c.StartDate)
-GO
-
-CREATE VIEW dbo.ParticipantsWithInfoActionRequiredView
-  AS
-    SELECT TOP 1000 p.ParticipantID, p.ClientID
-    FROM Participants AS p
-    WHERE (p.FirstName IS NULL OR p.LastName IS NULL OR p.Email IS NULL) AND EXISTS(
-      SELECT *
-      FROM RegistrationsForConferences AS r
-        INNER JOIN Conferences AS c ON r.ConferenceID = c.ConferenceID
-      WHERE r.ParticipantID = p.ParticipantID
-            AND c.StartDate BETWEEN DATEADD(WEEK, -2, GETDATE()) AND DATEADD(WEEK, -1, GETDATE())
-    )
-    ORDER BY p.ClientID
-GO
-
 CREATE PROCEDURE dbo.change_number_of_seats_for_conference
     @ConferenceID INT, @Seats INT
 AS
@@ -436,6 +152,8 @@ AS
   END
 GO
 
+IF OBJECT_ID('dbo.change_number_of_seats_for_workshop') IS NOT NULL DROP PROCEDURE dbo.change_number_of_seats_for_workshop
+GO
 CREATE PROCEDURE dbo.change_number_of_seats_for_workshop
     @WorkshopID INT, @Seats INT
 AS
@@ -453,6 +171,8 @@ AS
   END
 GO
 
+IF OBJECT_ID('dbo.change_workshop_price') IS NOT NULL DROP PROCEDURE dbo.change_workshop_price
+GO
 CREATE PROCEDURE dbo.change_workshop_price
     @WorkshopID INT, @NewPrice MONEY
 AS
@@ -461,6 +181,8 @@ AS
   END
 GO
 
+IF OBJECT_ID('dbo.cancel_conference_registration') IS NOT NULL DROP PROCEDURE dbo.cancel_conference_registration
+GO
 CREATE PROCEDURE dbo.cancel_conference_registration
     @ConferenceID INT, @ParticipantID INT
 AS
@@ -479,13 +201,15 @@ AS
   END
 GO
 
+IF OBJECT_ID('dbo.cancel_workshop_registration') IS NOT NULL DROP PROCEDURE dbo.cancel_workshop_registration
+GO
 CREATE PROCEDURE dbo.cancel_workshop_registration
     @WorkshopID INT, @ParticipantID INT
 AS
   BEGIN
     IF (
-      SELECT w.StartDateTime FROM Workshops AS w WHERE w.WorkshopID = @WorkshopID
-    ) > GETDATE()
+         SELECT w.StartDateTime FROM Workshops AS w WHERE w.WorkshopID = @WorkshopID
+       ) > GETDATE()
       BEGIN
         RAISERROR('Cannot cancel registration for current/past workshop', 16, 1)
       END
@@ -497,4 +221,358 @@ AS
 GO
 
 
+------------------------------------------------------------------------------------------------------------------------
+-- Functions
+------------------------------------------------------------------------------------------------------------------------
 
+IF OBJECT_ID('dbo.get_current_conference_price') IS NOT NULL DROP FUNCTION dbo.get_current_conference_price
+GO
+CREATE FUNCTION dbo.get_current_conference_price (@ConferenceID INTEGER, @ApplyStudentDiscount BIT)
+  RETURNS MONEY
+AS
+  BEGIN
+    DECLARE @CurrentPrice INTEGER, @StudentDiscount INTEGER;
+
+    SELECT TOP 1 @CurrentPrice = p.Price, @StudentDiscount = p.Discount
+    FROM ConferencePriceThresholds AS p
+    WHERE p.ConferenceID = @ConferenceID AND p.EndDate > GETDATE()
+    ORDER BY p.EndDate
+
+    IF (@ApplyStudentDiscount = 1)
+      BEGIN
+        SET @CurrentPrice = @CurrentPrice * (1 - @StudentDiscount)
+      END
+
+    RETURN @CurrentPrice
+  END
+GO
+
+IF OBJECT_ID('dbo.get_seats_left_for_conference_at_date') IS NOT NULL DROP FUNCTION dbo.get_seats_left_for_conference_at_date
+GO
+CREATE FUNCTION dbo.get_seats_left_for_conference_at_date (@ConferenceID INT, @Date DATE)
+  RETURNS INT
+AS
+  BEGIN
+    DECLARE @NumberOfRegistrations INT = (
+      SELECT Count(*)
+      FROM RegistrationsForConferences
+      JOIN RegistrationDateRanges
+          ON RegistrationsForConferences.RegistrationForConferenceID = RegistrationDateRanges.RegistrationForConferenceID
+      WHERE
+        RegistrationsForConferences.ConferenceID = @ConferenceID AND
+        @Date BETWEEN RegistrationDateRanges.StartDate AND RegistrationDateRanges.EndDate
+    )
+
+    DECLARE @NumberOfSeatsForConference INT = (
+      SELECT Conferences.NumberOfSeats FROM Conferences WHERE Conferences.ConferenceID = @ConferenceID
+    )
+
+    DECLARE @SeatsLeft INT = @NumberOfSeatsForConference - @NumberOfRegistrations
+
+    RETURN @SeatsLeft
+  END
+GO
+
+IF OBJECT_ID('dbo.get_seats_left_for_workshop') IS NOT NULL DROP FUNCTION dbo.get_seats_left_for_workshop
+GO
+CREATE FUNCTION dbo.get_seats_left_for_workshop (@WorkshopID INT)
+  RETURNS INT
+AS
+  BEGIN
+    DECLARE @NumberOfRegistrations INT = (
+      SELECT Count(*) FROM RegistrationsForWorkshops WHERE RegistrationsForWorkshops.WorkshopID = @WorkshopID
+    )
+    DECLARE @NumberOfSeatsForWorkshop INT = (
+      SELECT Workshops.NumberOfSeats FROM Workshops WHERE Workshops.WorkshopID = @WorkshopID
+    )
+    DECLARE @SeatsLeft INT = @NumberOfSeatsForWorkshop - @NumberOfRegistrations
+
+    RETURN @SeatsLeft
+  END
+GO
+
+IF OBJECT_ID('dbo.is_participant_registered_for_conference_day') IS NOT NULL DROP FUNCTION dbo.is_participant_registered_for_conference_day
+GO
+CREATE FUNCTION dbo.is_participant_registered_for_conference_day
+  (@ParticipantID INT, @ConferenceID INT, @Date DATE)
+  RETURNS BIT
+AS
+  BEGIN
+    DECLARE @RegistrationID INT = (
+      SELECT RegistrationForConferenceID
+      FROM RegistrationsForConferences
+      WHERE ParticipantID = @ParticipantID AND ConferenceID = @ConferenceID
+    )
+
+    IF EXISTS(
+      SELECT 1 FROM RegistrationDateRanges
+      WHERE RegistrationForConferenceID = @RegistrationID AND @Date BETWEEN StartDate AND EndDate
+    )
+      BEGIN
+        RETURN 1
+      END
+
+    RETURN 0
+  END
+GO
+
+IF OBJECT_ID('dbo.is_participant_registered_for_some_workshop_at') IS NOT NULL DROP FUNCTION dbo.is_participant_registered_for_some_workshop_at
+GO
+CREATE FUNCTION dbo.is_participant_registered_for_some_workshop_at
+  (@ParticipantID INT, @StartDateTime DATETIME, @EndDateTime DATETIME)
+  RETURNS BIT
+AS
+  BEGIN
+    IF EXISTS(
+        SELECT * FROM RegistrationsForWorkshops
+          INNER JOIN Workshops AS W ON RegistrationsForWorkshops.WorkshopID = W.WorkshopID
+        WHERE ParticipantID = @ParticipantID AND (
+          @StartDateTime BETWEEN W.StartDateTime AND EndDateTime
+          OR
+          @EndDateTime BETWEEN W.StartDateTime AND EndDateTime
+        )
+    )
+      BEGIN
+        RETURN 1
+      END
+
+    RETURN 0
+  END
+
+IF OBJECT_ID('dbo.report_best_clients') IS NOT NULL DROP FUNCTION dbo.report_best_clients
+GO
+CREATE FUNCTION dbo.report_best_clients (@ConferenceID INT)
+  RETURNS TABLE
+AS
+  RETURN (
+      SELECT TOP 1000 FirstName, LastName, 'Conference days' as Type, count(*) as Times FROM RegistrationsForConferences
+      INNER JOIN Participants ON Participants.ParticipantID = RegistrationsForConferences.ParticipantID
+      WHERE ConferenceID = @ConferenceID
+      GROUP BY FirstName, LastName
+
+UNION
+
+SELECT TOP 1000 FirstName, LastName, 'Workshops' as Type, count(*) as Times FROM RegistrationsForWorkshops
+      INNER JOIN Participants ON Participants.ParticipantID = RegistrationsForWorkshops.ParticipantID
+      INNER JOIN Workshops ON RegistrationsForWorkshops.WorkshopID = Workshops.WorkshopID
+      WHERE ConferenceID = @ConferenceID
+      GROUP BY FirstName, LastName ORDER BY Times DESC
+  )
+GO
+
+IF OBJECT_ID('dbo.report_conference_participants') IS NOT NULL DROP FUNCTION dbo.report_conference_participants
+GO
+CREATE FUNCTION dbo.report_conference_participants (@ConferenceID INT)
+  RETURNS TABLE
+AS
+  RETURN(
+  SELECT
+    FirstName,
+    LastName,
+    StartDate,
+    EndDate
+  FROM RegistrationsForConferences
+    INNER JOIN Participants ON Participants.ParticipantID = RegistrationsForConferences.ParticipantID
+    INNER JOIN RegistrationDateRanges
+      ON RegistrationDateRanges.RegistrationForConferenceID = RegistrationsForConferences.RegistrationForConferenceID
+  WHERE ConferenceID = @ConferenceID
+  )
+GO
+
+IF OBJECT_ID('dbo.report_most_popular_workshop') IS NOT NULL DROP FUNCTION dbo.report_most_popular_workshop
+GO
+CREATE FUNCTION dbo.report_most_popular_workshop (@ConferenceID INT)
+  RETURNS TABLE
+AS
+  RETURN (
+      SELECT TOP 1 Workshops.WorkshopName, count(*) AS Attendees FROM Workshops
+        INNER JOIN RegistrationsForWorkshops ON RegistrationsForWorkshops.WorkshopID = Workshops.WorkshopID
+        INNER JOIN Participants ON Participants.ParticipantID = RegistrationsForWorkshops.ParticipantID
+        WHERE Workshops.ConferenceID = @ConferenceID
+	GROUP BY Workshops.WorkshopName ORDER BY Attendees
+  )
+GO
+
+IF OBJECT_ID('dbo.report_payments') IS NOT NULL DROP FUNCTION dbo.report_payments
+GO
+CREATE FUNCTION dbo.report_payments (@ConferenceID INT)
+  RETURNS TABLE
+AS
+  RETURN(
+  SELECT
+    FirstName, LastName, 'Conference' as Type, PaidAt FROM RegistrationsForConferences
+    INNER JOIN Participants ON Participants.ParticipantID = RegistrationsForConferences.ParticipantID
+  WHERE ConferenceID = @ConferenceID
+
+UNION
+
+  SELECT
+    FirstName,LastName, CONVERT(varchar(255), Workshops.WorkshopID), PaidAt
+  FROM RegistrationsForWorkshops
+    INNER JOIN Participants ON Participants.ParticipantID = RegistrationsForWorkshops.ParticipantID
+    INNER JOIN Workshops ON Workshops.WorkshopID = RegistrationsForWorkshops.WorkshopID
+    INNER JOIN Conferences ON Workshops.ConferenceID = Conferences.ConferenceID
+  WHERE Workshops.ConferenceID = @ConferenceID
+  )
+GO
+
+IF OBJECT_ID('dbo.report_workshops_participants') IS NOT NULL DROP FUNCTION dbo.report_workshops_participants
+GO
+CREATE FUNCTION dbo.report_workshops_participants (@WorkshopID INT)
+  RETURNS TABLE
+AS
+  RETURN (
+      SELECT Participants.FirstName, Participants.LastName FROM Workshops
+        INNER JOIN RegistrationsForWorkshops ON RegistrationsForWorkshops.WorkshopID = Workshops.WorkshopID
+        INNER JOIN Participants ON Participants.ParticipantID = RegistrationsForWorkshops.ParticipantID
+        WHERE Workshops.WorkshopID = @WorkshopID
+  )
+GO
+
+IF OBJECT_ID('dbo.show_workshops') IS NOT NULL DROP FUNCTION dbo.show_workshops
+GO
+CREATE FUNCTION dbo.show_workshops (@WorkshopID INT)
+  RETURNS TABLE
+AS
+  RETURN (
+      SELECT WorkshopName, NumberOfSeats, StartDateTime, EndDateTime, FirstName, LastName FROM Workshops
+      INNER JOIN Lecturers ON Workshops.LecturerID = Lecturers.LecturerID
+      WHERE ConferenceID = @WorkshopID
+  )
+GO
+
+
+------------------------------------------------------------------------------------------------------------------------
+-- Triggers
+------------------------------------------------------------------------------------------------------------------------
+
+IF OBJECT_ID('dbo.participant_limit_conference') IS NOT NULL DROP TRIGGER dbo.participant_limit_conference
+GO
+CREATE TRIGGER dbo.participant_limit_conference
+  ON RegistrationsForConferences
+  FOR INSERT
+AS
+  BEGIN
+    IF (SELECT Count(inserted.ConferenceID) FROM inserted) > 1
+      BEGIN
+        RAISERROR ('You cannot register for more than one conference at once', 16, 1)
+        ROLLBACK TRANSACTION
+      END
+
+    IF (
+         SELECT count(*)
+         FROM inserted
+       ) > (
+         SELECT TOP 1 NumberOfSeats
+         FROM inserted
+       )
+      BEGIN
+        RAISERROR ('Registrations exceed conference capacity', 16, 1)
+        ROLLBACK TRANSACTION
+      END
+
+  END
+GO
+
+IF OBJECT_ID('dbo.participant_limit_workshop') IS NOT NULL DROP TRIGGER dbo.participant_limit_workshop
+GO
+CREATE TRIGGER dbo.participant_limit_workshop
+  ON RegistrationsForWorkshops
+  FOR INSERT
+AS
+  BEGIN
+    IF (SELECT Count(inserted.WorkshopID) FROM inserted) > 1
+      BEGIN
+        RAISERROR ('You cannot register for more than one workshop at once', 16, 1)
+        ROLLBACK TRANSACTION
+      END
+    IF (
+         SELECT Count(*)
+         FROM inserted
+       ) > (
+         SELECT TOP 1 NumberOfSeats
+         FROM inserted
+       )
+      BEGIN
+        RAISERROR ('Registrations exceed workshop capacity', 16, 1)
+        ROLLBACK TRANSACTION
+      END
+
+  END
+GO
+
+IF OBJECT_ID('dbo.registration_for_workshop_if_in_conference') IS NOT NULL DROP TRIGGER dbo.registration_for_workshop_if_in_conference
+GO
+CREATE TRIGGER dbo.registration_for_workshop_if_in_conference ON RegistrationsForWorkshops
+FOR INSERT
+AS
+  BEGIN
+    IF NOT (
+      SELECT Count(RegistrationsForWorkshops.RegistrationForWorkshopID)
+      FROM inserted
+      INNER JOIN Workshops ON inserted.WorkshopID = Workshops.WorkshopID
+      INNER JOIN Conferences ON Workshops.ConferenceID = Conferences.ConferenceID
+      INNER JOIN RegistrationsForConferences
+	      ON inserted.ParticipantID = RegistrationsForConferences.ParticipantID AND Conferences.ConferenceID = RegistrationsForConferences.ConferenceID
+      INNER JOIN RegistrationDateRanges ON RegistrationsForConferences.RegistrationForConferenceID = RegistrationDateRanges.RegistrationForConferenceID
+      WHERE Workshops.StartDateTime BETWEEN RegistrationDateRanges.StartDate AND RegistrationDateRanges.EndDate
+    ) = (
+      SELECT Count(RegistrationsForWorkshops.RegistrationForWorkshopID)
+      FROM inserted
+    )
+      BEGIN
+        RAISERROR('Each participant must be registered for the conference on that day', 16, 1)
+        ROLLBACK TRANSACTION
+      END
+  END
+GO
+
+IF OBJECT_ID('dbo.unique_registration_for_workshop') IS NOT NULL DROP TRIGGER dbo.unique_registration_for_workshop
+GO
+CREATE TRIGGER dbo.unique_registration_for_workshop ON RegistrationsForWorkshops
+  FOR INSERT, UPDATE
+AS
+  BEGIN
+    IF EXISTS(
+        SELECT *
+        FROM inserted
+          INNER JOIN RegistrationsForWorkshops
+            ON inserted.WorkshopID = RegistrationsForWorkshops.WorkshopID AND
+               inserted.ParticipantID = RegistrationsForWorkshops.ParticipantID
+    )
+      BEGIN
+        RAISERROR('Some of the participants are already registered for this workshop', 16, 1)
+        ROLLBACK TRANSACTION
+      END
+  END
+
+
+------------------------------------------------------------------------------------------------------------------------
+-- Views
+------------------------------------------------------------------------------------------------------------------------
+
+IF OBJECT_ID('dbo.v_conference_registrations_to_cancel') IS NOT NULL DROP VIEW dbo.v_conference_registrations_to_cancel
+GO
+CREATE VIEW dbo.v_conference_registrations_to_cancel
+  AS
+    SELECT r.RegistrationForConferenceID
+    FROM RegistrationsForConferences AS r
+      INNER JOIN Conferences AS c ON c.ConferenceID = r.ConferenceID
+    WHERE r.PaidAt IS NULL AND GETDATE() < DATEADD(WEEK, -1, c.StartDate)
+GO
+
+IF OBJECT_ID('dbo.v_participants_with_info_action_required') IS NOT NULL DROP VIEW dbo.v_participants_with_info_action_required
+GO
+CREATE VIEW dbo.ParticipantsWithInfoActionRequiredView
+  AS
+    SELECT TOP 1000 p.ParticipantID, p.ClientID
+    FROM Participants AS p
+    WHERE (p.FirstName IS NULL OR p.LastName IS NULL OR p.Email IS NULL) AND EXISTS(
+      SELECT *
+      FROM RegistrationsForConferences AS r
+        INNER JOIN Conferences AS c ON r.ConferenceID = c.ConferenceID
+      WHERE r.ParticipantID = p.ParticipantID
+            AND c.StartDate BETWEEN DATEADD(WEEK, -2, GETDATE()) AND DATEADD(WEEK, -1, GETDATE())
+    )
+    ORDER BY p.ClientID
+GO
