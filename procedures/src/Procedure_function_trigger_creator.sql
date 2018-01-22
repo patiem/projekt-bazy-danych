@@ -92,7 +92,7 @@ AS
   END
 GO
 
-CREATE FUNCTION get_current_conference_price (@ConferenceID INTEGER, @ApplyStudentDiscount BIT)
+CREATE FUNCTION dbo.get_current_conference_price (@ConferenceID INTEGER, @ApplyStudentDiscount BIT)
   RETURNS MONEY
 AS
   BEGIN
@@ -112,7 +112,7 @@ AS
   END
 GO
 
-CREATE FUNCTION get_seats_left_for_conference_at_date (@ConferenceID INT, @Date DATE)
+CREATE FUNCTION dbo.get_seats_left_for_conference_at_date (@ConferenceID INT, @Date DATE)
   RETURNS INT
 AS
   BEGIN
@@ -136,7 +136,7 @@ AS
   END
 GO
 
-CREATE FUNCTION get_seats_left_for_workshop (@WorkshopID INT)
+CREATE FUNCTION dbo.get_seats_left_for_workshop (@WorkshopID INT)
   RETURNS INT
 AS
   BEGIN
@@ -152,7 +152,7 @@ AS
   END
 GO
 
-CREATE FUNCTION is_participant_registered_for_conference_day
+CREATE FUNCTION dbo.is_participant_registered_for_conference_day
   (@ParticipantID INT, @ConferenceID INT, @Date DATE)
   RETURNS BIT
 AS
@@ -175,7 +175,7 @@ AS
   END
 GO
 
-CREATE FUNCTION is_participant_registered_for_some_workshop_at
+CREATE FUNCTION dbo.is_participant_registered_for_some_workshop_at
   (@ParticipantID INT, @StartDateTime DATETIME, @EndDateTime DATETIME)
   RETURNS BIT
 AS
@@ -197,7 +197,7 @@ AS
   END
 
 
-CREATE FUNCTION report_best_clients (@ConferenceID INT)
+CREATE FUNCTION dbo.report_best_clients (@ConferenceID INT)
   RETURNS TABLE
 AS
   RETURN (
@@ -216,7 +216,7 @@ SELECT TOP 1000 FirstName, LastName, 'Workshops' as Type, count(*) as Times FROM
   )
 GO
 
-CREATE FUNCTION report_conference_participants (@ConferenceID INT)
+CREATE FUNCTION dbo.report_conference_participants (@ConferenceID INT)
   RETURNS TABLE
 AS
   RETURN(
@@ -233,7 +233,7 @@ AS
   )
 GO
 
-CREATE FUNCTION report_most_popular_workshop (@ConferenceID INT)
+CREATE FUNCTION dbo.report_most_popular_workshop (@ConferenceID INT)
   RETURNS TABLE
 AS
   RETURN (
@@ -245,7 +245,7 @@ AS
   )
 GO
 
-CREATE FUNCTION report_payments (@ConferenceID INT)
+CREATE FUNCTION dbo.report_payments (@ConferenceID INT)
   RETURNS TABLE
 AS
   RETURN(
@@ -266,7 +266,7 @@ UNION
   )
 GO
 
-CREATE FUNCTION report_workshops_participants (@WorkshopID INT)
+CREATE FUNCTION dbo.report_workshops_participants (@WorkshopID INT)
   RETURNS TABLE
 AS
   RETURN (
@@ -277,7 +277,7 @@ AS
   )
 GO
 
-CREATE FUNCTION show_workshops (@WorkshopID INT)
+CREATE FUNCTION dbo.show_workshops (@WorkshopID INT)
   RETURNS TABLE
 AS
   RETURN (
@@ -287,7 +287,7 @@ AS
   )
 GO
 
-CREATE TRIGGER participant_limit_conference
+CREATE TRIGGER dbo.participant_limit_conference
   ON RegistrationsForConferences
   FOR INSERT
 AS
@@ -313,7 +313,7 @@ AS
   END
 GO
 
-CREATE TRIGGER participant_limit_workshop
+CREATE TRIGGER dbo.participant_limit_workshop
   ON RegistrationsForWorkshops
   FOR INSERT
 AS
@@ -338,7 +338,7 @@ AS
   END
 GO
 
-CREATE TRIGGER registration_for_workshop_if_in_conference ON RegistrationsForWorkshops
+CREATE TRIGGER dbo.registration_for_workshop_if_in_conference ON RegistrationsForWorkshops
 FOR INSERT
 AS
   BEGIN
@@ -362,7 +362,7 @@ AS
   END
 GO
 
-CREATE TRIGGER unique_registration_for_workshop ON RegistrationsForWorkshops
+CREATE TRIGGER dbo.unique_registration_for_workshop ON RegistrationsForWorkshops
   FOR INSERT, UPDATE
 AS
   BEGIN
