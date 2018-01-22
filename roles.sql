@@ -11,8 +11,8 @@ GRANT SELECT ON
   dbo.ParticipantsWithInfoActionRequiredView
   TO Employee
 GRANT EXECUTE ON
-  dbo.CancelConferenceRegistration --TODO implement
+  dbo.cancel_conference_registration
   TO Employee
 GRANT EXECUTE ON
-  dbo.CancelWorkshopRegistration --TODO implement
+  dbo.cancel_workshop_registration
   TO Employee
