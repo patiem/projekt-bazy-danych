@@ -669,8 +669,8 @@ CREATE TRIGGER dbo.registration_for_workshop_if_in_conference ON RegistrationsFo
   FOR INSERT
 AS
   BEGIN
-    IF NOT (
-             SELECT Count(inserted.RegistrationForWorkshopID)
+    IF EXISTS ((
+             SELECT DISTINCT inserted.RegistrationForWorkshopID, inserted.ParticipantID
              FROM inserted
                INNER JOIN Workshops ON inserted.WorkshopID = Workshops.WorkshopID
                INNER JOIN Conferences ON Workshops.ConferenceID = Conferences.ConferenceID
@@ -678,10 +678,10 @@ AS
                  ON inserted.ParticipantID = RegistrationsForConferences.ParticipantID AND Conferences.ConferenceID = RegistrationsForConferences.ConferenceID
                INNER JOIN RegistrationDateRanges ON RegistrationsForConferences.RegistrationForConferenceID = RegistrationDateRanges.RegistrationForConferenceID
              WHERE Workshops.StartDateTime BETWEEN RegistrationDateRanges.StartDate AND RegistrationDateRanges.EndDate
-           ) = (
-             SELECT Count(inserted.RegistrationForWorkshopID)
+           ) EXCEPT (
+             SELECT DISTINCT inserted.RegistrationForWorkshopID, inserted.ParticipantID
              FROM inserted
-           )
+           ))
       BEGIN
         RAISERROR('Each participant must be registered for the conference on that day', 16, 1)
         ROLLBACK TRANSACTION
