@@ -84,9 +84,12 @@ GO
 IF OBJECT_ID('dbo.pay_for_conference_registration') IS NOT NULL DROP PROCEDURE dbo.pay_for_conference_registration
 GO
 CREATE PROCEDURE dbo.pay_for_conference_registration
-    @RegistrationForConferenceID INT, @PaidAt DATE
+    @RegistrationForConferenceID INT, @PaidAt DATE = NULL
 AS
   BEGIN
+    IF @PaidAt IS NULL
+      SET @PaidAt = GETDATE()
+
     UPDATE RegistrationsForConferences SET PaidAt = @PaidAt WHERE RegistrationForConferenceID = @RegistrationForConferenceID
   END
 GO
@@ -94,9 +97,12 @@ GO
 IF OBJECT_ID('dbo.pay_for_workshop') IS NOT NULL DROP PROCEDURE dbo.pay_for_workshop
 GO
 CREATE PROCEDURE dbo.pay_for_workshop
-    @WorkshopID INT, @PaidAt DATE
+    @WorkshopID INT, @PaidAt DATE = NULL
 AS
   BEGIN
+    IF @PaidAt IS NULL
+      SET @PaidAt = GETDATE()
+
     UPDATE RegistrationsForWorkshops SET PaidAt = @PaidAt WHERE WorkshopID = @WorkshopID
   END
 GO
