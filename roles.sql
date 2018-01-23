@@ -1,8 +1,4 @@
-CREATE ROLE Owner
 CREATE ROLE Employee
-
-GRANT ALL
-TO Owner
 
 GRANT SELECT ON
   dbo.v_conference_registrations_to_cancel
