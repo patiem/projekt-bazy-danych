@@ -17,8 +17,8 @@ CREATE TABLE [Workshops] (
 	WorkshopName varchar(255) NOT NULL,
 	ConferenceID integer NOT NULL,
 	NumberOfSeats integer NOT NULL,
-	StartDateTime date NOT NULL,
-	EndDateTime date NOT NULL,
+	StartDateTime datetime NOT NULL,
+	EndDateTime datetime NOT NULL,
 	Price money NOT NULL,
 	LecturerID integer NOT NULL,
 )

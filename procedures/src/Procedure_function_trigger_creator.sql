@@ -53,7 +53,7 @@ GO
 IF OBJECT_ID('dbo.create_price_threshold_for_conference') IS NOT NULL DROP PROCEDURE dbo.create_price_threshold_for_conference
 GO
 CREATE PROCEDURE dbo.create_price_threshold_for_conference
-    @ConferenceID INT, @EndDate DATE, @Price MONEY, @StudentDiscount FLOAT
+    @ConferenceID INT, @EndDate DATE, @Price MONEY, @StudentDiscount FLOAT = 0.5
 AS
   BEGIN
     INSERT INTO ConferencePriceThresholds (ConferenceID, EndDate, Price, Discount)
@@ -61,10 +61,20 @@ AS
   END
 GO
 
+IF OBJECT_ID('dbo.create_lecturer') IS NOT NULL DROP PROCEDURE dbo.create_lecturer
+GO
+CREATE PROCEDURE dbo.create_lecturer
+    @FirstName VARCHAR(255), @LastName VARCHAR(255)
+AS
+  BEGIN
+    INSERT INTO Lecturers VALUES (@FirstName, @LastName)
+  END
+GO
+
 IF OBJECT_ID('dbo.create_workshop_for_conference') IS NOT NULL DROP PROCEDURE dbo.create_workshop_for_conference
 GO
 CREATE PROCEDURE dbo.create_workshop_for_conference
-  @WorkshopName VARCHAR(255), @ConferenceID INTEGER, @NumberOfSeats INTEGER, @StartDateTime DATE, @EndDateTime DATE, @Price MONEY, @LecturerID INT
+  @WorkshopName VARCHAR(255), @ConferenceID INTEGER, @NumberOfSeats INTEGER, @StartDateTime DATETIME, @EndDateTime DATETIME, @Price MONEY, @LecturerID INT
 AS
   BEGIN
     INSERT INTO Workshops VALUES (@WorkshopName, @ConferenceID, @NumberOfSeats, @StartDateTime, @EndDateTime, @Price, @LecturerID)
@@ -227,7 +237,7 @@ GO
 
 IF OBJECT_ID('dbo.get_current_conference_price') IS NOT NULL DROP FUNCTION dbo.get_current_conference_price
 GO
-CREATE FUNCTION dbo.get_current_conference_price (@ConferenceID INTEGER, @ApplyStudentDiscount BIT)
+CREATE FUNCTION dbo.get_current_conference_price (@ConferenceID INTEGER, @ApplyStudentDiscount BIT = 0)
   RETURNS MONEY
 AS
   BEGIN
@@ -327,9 +337,9 @@ AS
         SELECT * FROM RegistrationsForWorkshops
           INNER JOIN Workshops AS W ON RegistrationsForWorkshops.WorkshopID = W.WorkshopID
         WHERE ParticipantID = @ParticipantID AND (
-          @StartDateTime BETWEEN W.StartDateTime AND EndDateTime
+          @StartDateTime < W.StartDateTime AND @EndDateTime >= W.StartDateTime
           OR
-          @EndDateTime BETWEEN W.StartDateTime AND EndDateTime
+          @StartDateTime BETWEEN W.StartDateTime AND W.EndDateTime
         )
     )
       BEGIN
