@@ -53,7 +53,7 @@ GO
 IF OBJECT_ID('dbo.create_price_threshold_for_conference') IS NOT NULL DROP PROCEDURE dbo.create_price_threshold_for_conference
 GO
 CREATE PROCEDURE dbo.create_price_threshold_for_conference
-    @ConferenceID INT, @EndDate DATE, @Price INT, @StudentDiscount FLOAT
+    @ConferenceID INT, @EndDate DATE, @Price MONEY, @StudentDiscount FLOAT
 AS
   BEGIN
     INSERT INTO ConferencePriceThresholds (ConferenceID, EndDate, Price, Discount)
@@ -64,7 +64,7 @@ GO
 IF OBJECT_ID('dbo.create_workshop_for_conference') IS NOT NULL DROP PROCEDURE dbo.create_workshop_for_conference
 GO
 CREATE PROCEDURE dbo.create_workshop_for_conference
-  @WorkshopName VARCHAR(255), @ConferenceID INTEGER, @NumberOfSeats INTEGER, @StartDateTime DATE, @EndDateTime DATE, @Price FLOAT, @LecturerID INT
+  @WorkshopName VARCHAR(255), @ConferenceID INTEGER, @NumberOfSeats INTEGER, @StartDateTime DATE, @EndDateTime DATE, @Price MONEY, @LecturerID INT
 AS
   BEGIN
     INSERT INTO Workshops VALUES (@WorkshopName, @ConferenceID, @NumberOfSeats, @StartDateTime, @EndDateTime, @Price, @LecturerID)
@@ -231,7 +231,7 @@ CREATE FUNCTION dbo.get_current_conference_price (@ConferenceID INTEGER, @ApplyS
   RETURNS MONEY
 AS
   BEGIN
-    DECLARE @CurrentPrice INTEGER, @StudentDiscount INTEGER;
+    DECLARE @CurrentPrice MONEY, @StudentDiscount INTEGER;
 
     SELECT TOP 1 @CurrentPrice = p.Price, @StudentDiscount = p.Discount
     FROM ConferencePriceThresholds AS p
