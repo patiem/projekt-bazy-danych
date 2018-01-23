@@ -749,4 +749,4 @@ TO Employee
 GRANT EXECUTE ON
 dbo.cancel_workshop_registration
 TO Employee
-g
+GO
